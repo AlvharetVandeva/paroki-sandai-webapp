@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ServiceRole {
+  id          Int                  @id @default(autoincrement())
+  name        String               @unique
+  description String?
+  persons     Person[]
+  assignments ScheduleAssignment[]
+}
+
+model Person {
+  id          Int                  @id @default(autoincrement())
+  fullName    String
+  email       String?              @unique
+  roleId      Int?
+  role        ServiceRole?         @relation(fields: [roleId], references: [id])
+  assignments ScheduleAssignment[]
+}
+
+model Schedule {
+  id          Int                  @id @default(autoincrement())
+  title       String
+  startAt     DateTime
+  endAt       DateTime
+  location    String               @default("Gereja Paroki")
+  description String?
+  assignments ScheduleAssignment[]
+}
+
+model ScheduleAssignment {
+  id         Int         @id @default(autoincrement())
+  scheduleId Int
+  personId   Int?
+  roleId     Int
+  schedule   Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  person     Person?     @relation(fields: [personId], references: [id], onDelete: SetNull)
+  role       ServiceRole @relation(fields: [roleId], references: [id])
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime
+  imageUrl    String?
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  key   String @id
+  value String
+}
