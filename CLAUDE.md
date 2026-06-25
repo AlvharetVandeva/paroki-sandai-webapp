@@ -136,13 +136,13 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 1 — Project Foundation
 
-- [ ] Review dokumentasi Next.js lokal sesuai instruksi `AGENTS.md`.
-- [ ] Rapikan metadata awal website di `app/layout.tsx`.
-- [ ] Siapkan struktur folder `actions/`, `components/`, `lib/`, `schemas/`, `services/`, dan `docs/`.
-- [ ] Install dan konfigurasi dependency: Prisma, Supabase, Zod, Flowbite, shadcn/ui, dan dependency pendukung.
-- [ ] Konfigurasi environment variables untuk Supabase dan database.
-- [ ] Siapkan Prisma client singleton.
-- [ ] Siapkan Supabase server/client helper sesuai kebutuhan Next.js App Router.
+- [x] Review dokumentasi Next.js lokal sesuai instruksi `AGENTS.md`.
+- [x] Rapikan metadata awal website di `app/layout.tsx`.
+- [x] Siapkan struktur folder `actions/`, `components/`, `lib/`, `schemas/`, `services/`, dan `docs/`.
+- [x] Install dan konfigurasi dependency: Prisma, Supabase, Zod, Flowbite, shadcn/ui, dan dependency pendukung.
+- [x] Konfigurasi environment variables untuk Supabase dan database.
+- [x] Siapkan Prisma client singleton.
+- [x] Siapkan Supabase server/client helper sesuai kebutuhan Next.js App Router.
 
 ### Phase 2 — Database dan Validation Layer
 
