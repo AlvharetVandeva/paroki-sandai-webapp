@@ -59,11 +59,18 @@ function MapController({ onSearchResult }: { onSearchResult: (lat: number, lng: 
   return null;
 }
 
-interface SearchBoxProps {
-  onSelect: (lat: number, lng: number, name: string) => void;
+function MapRefKeeper({ mapRef }: { mapRef: React.MutableRefObject<L.Map | null> }) {
+  const map = useMap();
+  mapRef.current = map;
+  return null;
 }
 
-function SearchBox({ onSelect }: SearchBoxProps) {
+interface SearchBoxProps {
+  onSelect: (lat: number, lng: number, name: string) => void;
+  onPanTo: (lat: number, lng: number) => void;
+}
+
+function SearchBox({ onSelect, onPanTo }: SearchBoxProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ lat: string; lon: string; display_name: string }[]>([]);
   const [open, setOpen] = useState(false);
@@ -98,6 +105,7 @@ function SearchBox({ onSelect }: SearchBoxProps) {
     setQuery(r.display_name);
     setOpen(false);
     onSelect(Number(r.lat), Number(r.lon), r.display_name);
+    onPanTo(Number(r.lat), Number(r.lon));
   }
 
   return (
@@ -137,6 +145,7 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
       ? [Number(latitude), Number(longitude)]
       : null;
   const displayPosition = pos ?? DEFAULT_POSITION;
+  const mapRef = useRef<L.Map | null>(null);
 
   const handleMove = useCallback(
     (lat: number, lng: number) => {
@@ -152,9 +161,13 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
     [onLocationChange],
   );
 
+  const handlePanTo = useCallback((lat: number, lng: number) => {
+    mapRef.current?.setView([lat, lng], 15);
+  }, []);
+
   return (
     <div className="space-y-2">
-      <SearchBox onSelect={handleSearch} />
+      <SearchBox onSelect={handleSearch} onPanTo={handlePanTo} />
       <div className="h-[300px] w-full overflow-hidden rounded-md border">
         <MapContainer
           center={displayPosition}
@@ -168,6 +181,7 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
           />
           <LocationMarker position={displayPosition} onMove={handleMove} />
           <MapController onSearchResult={handleMove} />
+          <MapRefKeeper mapRef={mapRef} />
         </MapContainer>
       </div>
     </div>
