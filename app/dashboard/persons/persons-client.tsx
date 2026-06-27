@@ -128,7 +128,7 @@ export function PersonsClient({ persons, roles }: { persons: Person[]; roles: Ro
               <div className="space-y-2">
                 <Label>Role</Label>
                 <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
-                  <SelectTrigger><SelectValue placeholder="Pilih role" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Pilih role">{roles.find((r) => r.id.toString() === roleId)?.name}</SelectValue></SelectTrigger>
                   <SelectContent>
                     {roles.map((r) => <SelectItem key={r.id} value={r.id.toString()}>{r.name}</SelectItem>)}
                   </SelectContent>
