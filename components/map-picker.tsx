@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet-control-geocoder/dist/Control.Geocoder.css";
-// Force initialization of the geocoder control — extends L.Control
-import "leaflet-control-geocoder";
+import { Input } from "@/components/ui/input";
 
-// Fix default marker icon (broken in webpack bundling)
+// Fix default marker icon
 const iconUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
 const iconRetinaUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png";
 const shadowUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png";
@@ -32,7 +30,9 @@ function LocationMarker({
     },
   });
 
-  return position ? (
+  if (!position) return null;
+
+  return (
     <Marker
       position={position}
       draggable
@@ -47,39 +47,82 @@ function LocationMarker({
         },
       }}
     />
-  ) : null;
+  );
 }
 
-function SearchControl({ onSelect }: { onSelect: (lat: number, lng: number, name: string) => void }) {
-  const map = useMap();
-
-  useEffect(() => {
-    const geocoder = (L.Control as any).Geocoder.nominatim();
-
-    const control = (L.Control as any).geocoder({
-      query: "",
-      placeholder: "Cari lokasi...",
-      defaultMarkGeocode: false,
-      geocoder,
-      collapsed: false,
-      position: "topright",
-    }) as any;
-
-    (control as any).on("select", (e: any) => {
-      const { lat, lng } = e.center;
-      const name = e.name;
-      map.setView([lat, lng], 15);
-      onSelect(lat, lng, name);
-    });
-
-    control.addTo(map);
-
-    return () => {
-      map.removeControl(control);
-    };
-  }, [map, onSelect]);
-
+function MapController({ onSearchResult }: { onSearchResult: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onSearchResult(e.latlng.lat, e.latlng.lng);
+    },
+  });
   return null;
+}
+
+interface SearchBoxProps {
+  onSelect: (lat: number, lng: number, name: string) => void;
+}
+
+function SearchBox({ onSelect }: SearchBoxProps) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<{ lat: string; lon: string; display_name: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  function handleInput(value: string) {
+    setQuery(value);
+    if (timer.current) clearTimeout(timer.current);
+
+    if (value.length < 3) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+
+    timer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(value)}`,
+          { headers: { "Accept-Language": "id" } },
+        );
+        const data = await res.json();
+        setResults(data);
+        setOpen(data.length > 0);
+      } catch {
+        setResults([]);
+      }
+    }, 400);
+  }
+
+  function pick(r: { lat: string; lon: string; display_name: string }) {
+    setQuery(r.display_name);
+    setOpen(false);
+    onSelect(Number(r.lat), Number(r.lon), r.display_name);
+  }
+
+  return (
+    <div className="relative z-[1000]">
+      <Input
+        value={query}
+        onChange={(e) => handleInput(e.target.value)}
+        placeholder="Cari lokasi..."
+        className="bg-white shadow-sm"
+      />
+      {open && (
+        <ul className="absolute left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto rounded-md border bg-white shadow-lg">
+          {results.map((r, i) => (
+            <li
+              key={i}
+              onClick={() => pick(r)}
+              className="cursor-pointer px-3 py-2 text-sm hover:bg-muted"
+            >
+              {r.display_name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 interface MapPickerProps {
@@ -110,20 +153,23 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
   );
 
   return (
-    <div className="h-[300px] w-full overflow-hidden rounded-md border">
-      <MapContainer
-        center={displayPosition}
-        zoom={14}
-        className="h-full w-full"
-        scrollWheelZoom
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <LocationMarker position={displayPosition} onMove={handleMove} />
-        <SearchControl onSelect={handleSearch} />
-      </MapContainer>
+    <div className="space-y-2">
+      <SearchBox onSelect={handleSearch} />
+      <div className="h-[300px] w-full overflow-hidden rounded-md border">
+        <MapContainer
+          center={displayPosition}
+          zoom={14}
+          className="h-full w-full"
+          scrollWheelZoom
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationMarker position={displayPosition} onMove={handleMove} />
+          <MapController onSearchResult={handleMove} />
+        </MapContainer>
+      </div>
     </div>
   );
 }
