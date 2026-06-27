@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const geistMono = Geist_Mono({
   variable: "--font-mono",
@@ -23,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" className={cn("font-sans", geist.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
+        className={`${geist.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        {children}
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
       </body>
     </html>
   );
