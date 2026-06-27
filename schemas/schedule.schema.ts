@@ -17,10 +17,7 @@ const ScheduleBase = z.object({
   assignments: z.array(ScheduleAssignmentSchema).optional().default([]),
 });
 
-export const ScheduleSchema = ScheduleBase.refine(
-  (data) => data.endAt > data.startAt,
-  { message: "Tanggal selesai harus setelah tanggal mulai", path: ["endAt"] },
-);
+export const ScheduleSchema = ScheduleBase;
 
 export const ScheduleUpdateSchema = ScheduleBase.partial();
 
