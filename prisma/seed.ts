@@ -141,6 +141,8 @@ async function main() {
         title: "Rapat Pengurus Paroki",
         description: "Rapat rutin bulanan pengurus paroki membahas program kerja dan jadwal kegiatan",
         date: new Date("2026-07-10T19:00:00+07:00"),
+        location: "Aula Paroki Sandai",
+        address: "Jl. Gereja No. 1, Sandai, Ketapang",
       },
     }),
     prisma.event.upsert({
@@ -150,6 +152,7 @@ async function main() {
         title: "Pelatihan Misdinar",
         description: "Pelatihan untuk para putra altar tentang tata cara pelayanan misa",
         date: new Date("2026-07-12T08:00:00+07:00"),
+        location: "Gereja Paroki Sandai",
       },
     }),
     prisma.event.upsert({
@@ -168,6 +171,8 @@ async function main() {
         title: "Pemberkatan Pernikahan",
         description: "Pemberkatan pernikahan dua umat paroki Sandai",
         date: new Date("2026-07-20T10:00:00+07:00"),
+        location: "Gereja Paroki Sandai",
+        address: "Jl. Gereja No. 1, Sandai, Ketapang",
       },
     }),
     prisma.event.upsert({

@@ -50,6 +50,10 @@ model Event {
   description String?
   date        DateTime
   imageUrl    String?
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  address     String?
 }
 
 model Announcement {
