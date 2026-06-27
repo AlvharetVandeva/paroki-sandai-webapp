@@ -91,7 +91,7 @@ export function RolesClient({ roles }: { roles: Role[] }) {
               <TableRow key={role.id}>
                 <TableCell className="font-medium">{role.name}</TableCell>
                 <TableCell className="text-muted-foreground">{role.description ?? "—"}</TableCell>
-                <TableCell>{(role as any)._count?.persons ?? 0} orang</TableCell>
+                <TableCell>{role._count?.persons ?? 0} orang</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(role)}>
