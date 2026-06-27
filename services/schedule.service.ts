@@ -6,7 +6,7 @@ export async function getAllSchedules() {
     include: {
       assignments: {
         include: {
-          person: true,
+          person: { include: { role: true } },
           role: true,
         },
       },
@@ -20,7 +20,7 @@ export async function getScheduleById(id: number) {
     include: {
       assignments: {
         include: {
-          person: true,
+          person: { include: { role: true } },
           role: true,
         },
       },
