@@ -162,13 +162,13 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 4 — Admin CRUD Core
 
-- [ ] Buat CRUD role pelayanan.
-- [ ] Buat CRUD petugas/pelayan.
-- [ ] Buat CRUD jadwal pelayanan dengan assignment petugas berdasarkan role.
-- [ ] Buat CRUD kegiatan mendatang.
-- [ ] Buat CRUD pengumuman singkat.
-- [ ] Buat pengaturan informasi website: alamat, kontak, peta, sosial media.
-- [ ] Tambahkan validasi form, loading state, empty state, error state, dan confirmation dialog.
+- [x] Buat CRUD role pelayanan.
+- [x] Buat CRUD petugas/pelayan.
+- [x] Buat CRUD jadwal pelayanan dengan assignment petugas berdasarkan role.
+- [x] Buat CRUD kegiatan mendatang.
+- [x] Buat CRUD pengumuman singkat.
+- [x] Buat pengaturan informasi website: alamat, kontak, peta, sosial media.
+- [x] Tambahkan validasi form, loading state, empty state, error state, dan confirmation dialog.
 
 ### Phase 5 — Public Layout dan Home Page
 
