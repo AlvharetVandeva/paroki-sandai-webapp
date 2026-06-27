@@ -154,11 +154,11 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 3 — Authentication dan Admin Layout
 
-- [ ] Implementasi Supabase Auth untuk login/logout admin.
-- [ ] Buat route group auth untuk halaman login.
-- [ ] Buat protected dashboard layout.
-- [ ] Tambahkan sidebar/topbar dashboard admin.
-- [ ] Tambahkan guard agar halaman dashboard hanya bisa diakses admin terautentikasi.
+- [x] Implementasi Supabase Auth untuk login/logout admin.
+- [x] Buat route group auth untuk halaman login.
+- [x] Buat protected dashboard layout.
+- [x] Tambahkan sidebar/topbar dashboard admin.
+- [x] Tambahkan guard agar halaman dashboard hanya bisa diakses admin terautentikasi.
 
 ### Phase 4 — Admin CRUD Core
 
