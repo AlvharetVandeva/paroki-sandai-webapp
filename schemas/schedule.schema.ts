@@ -5,7 +5,7 @@ export const ScheduleAssignmentSchema = z.object({
   personId: z.number().int().positive("Petugas harus dipilih").optional().nullable(),
 });
 
-export const ScheduleSchema = z.object({
+const ScheduleBase = z.object({
   title: z
     .string()
     .min(3, "Judul kegiatan minimal 3 karakter")
@@ -15,12 +15,14 @@ export const ScheduleSchema = z.object({
   location: z.string().max(200).optional().default("Gereja Paroki"),
   description: z.string().optional(),
   assignments: z.array(ScheduleAssignmentSchema).optional().default([]),
-}).refine(
+});
+
+export const ScheduleSchema = ScheduleBase.refine(
   (data) => data.endAt > data.startAt,
   { message: "Tanggal selesai harus setelah tanggal mulai", path: ["endAt"] },
 );
 
-export const ScheduleUpdateSchema = ScheduleSchema.partial();
+export const ScheduleUpdateSchema = ScheduleBase.partial();
 
 export type ScheduleInput = z.infer<typeof ScheduleSchema>;
 export type ScheduleUpdate = z.infer<typeof ScheduleUpdateSchema>;

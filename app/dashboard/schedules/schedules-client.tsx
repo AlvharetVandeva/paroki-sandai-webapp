@@ -39,9 +39,10 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [assignments, setAssignments] = useState<{ roleId: number; personId: number | null }[]>([]);
+  const [formError, setFormError] = useState<string | null>(null);
 
   function openCreate() {
-    setTitle(""); setStartAt(""); setEndAt(""); setLocation(""); setDescription(""); setAssignments([]); setOpen(true);
+    setTitle(""); setStartAt(""); setEndAt(""); setLocation(""); setDescription(""); setAssignments([]); setFormError(null); setOpen(true);
   }
 
   function addAssignment() {
@@ -62,14 +63,19 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await createSchedule({
+    setFormError(null);
+    const result = await createSchedule({
       title,
       startAt: new Date(startAt),
       endAt: new Date(endAt),
-      location: location || undefined,
-      description: description || undefined,
+      location: location || "Gereja Paroki",
+      description,
       assignments: assignments.filter((a) => a.roleId > 0),
-    });
+    } as any);
+    if (!result.success) {
+      setFormError(result.error);
+      return;
+    }
     setOpen(false);
     router.refresh();
   }
@@ -216,6 +222,9 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
                 )}
               </div>
             </div>
+            {formError && (
+              <p className="text-sm text-destructive">{formError}</p>
+            )}
             <DialogFooter>
               <Button type="submit">Buat Jadwal</Button>
             </DialogFooter>

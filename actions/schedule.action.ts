@@ -2,17 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
-import { ScheduleSchema } from "@/schemas/schedule.schema";
+import { ScheduleSchema, type ScheduleInput } from "@/schemas/schedule.schema";
 
-export async function createSchedule(data: {
-  title: string;
-  startAt: Date;
-  endAt: Date;
-  location?: string;
-  description?: string;
-  assignments?: { roleId: number; personId?: number | null }[];
-}) {
-  const parsed = ScheduleSchema.parse(data);
+export async function createSchedule(data: ScheduleInput) {
+  const result = ScheduleSchema.safeParse(data);
+
+  if (!result.success) {
+    return { success: false, error: result.error.issues.map((e) => e.message).join(", ") };
+  }
+
+  const parsed = result.data;
 
   await prisma.schedule.create({
     data: {
@@ -28,6 +27,7 @@ export async function createSchedule(data: {
   });
 
   revalidatePath("/dashboard/schedules");
+  return { success: true, error: null };
 }
 
 export async function updateSchedule(
