@@ -15,7 +15,7 @@ const shadowUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl });
 
-const DEFAULT_POSITION: [number, number] = [-1.85, 109.98]; // Kalimantan Barat
+const DEFAULT_POSITION: [number, number] = [-1.243445526438631, 110.53195397300267]; // Sandai, Ketapang
 
 function LocationMarker({
   position,
@@ -89,10 +89,11 @@ interface MapPickerProps {
 }
 
 export default function MapPicker({ latitude, longitude, onLocationChange }: MapPickerProps) {
-  const validPosition: [number, number] | null =
+  const pos: [number, number] | null =
     latitude && longitude && !isNaN(Number(latitude)) && !isNaN(Number(longitude))
       ? [Number(latitude), Number(longitude)]
       : null;
+  const displayPosition = pos ?? DEFAULT_POSITION;
 
   const handleMove = useCallback(
     (lat: number, lng: number) => {
@@ -111,8 +112,8 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
   return (
     <div className="h-[300px] w-full overflow-hidden rounded-md border">
       <MapContainer
-        center={validPosition ?? DEFAULT_POSITION}
-        zoom={validPosition ? 15 : 6}
+        center={displayPosition}
+        zoom={14}
         className="h-full w-full"
         scrollWheelZoom
       >
@@ -120,7 +121,7 @@ export default function MapPicker({ latitude, longitude, onLocationChange }: Map
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocationMarker position={validPosition} onMove={handleMove} />
+        <LocationMarker position={displayPosition} onMove={handleMove} />
         <SearchControl onSelect={handleSearch} />
       </MapContainer>
     </div>
