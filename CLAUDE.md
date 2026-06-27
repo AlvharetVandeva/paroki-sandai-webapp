@@ -146,11 +146,11 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 2 — Database dan Validation Layer
 
-- [ ] Definisikan schema Prisma untuk `ServiceRole`, `Person`, `Schedule`, `ScheduleAssignment`, `Event`, `Announcement`, dan `SiteSetting`.
-- [ ] Buat migration awal Prisma.
-- [ ] Buat seed data awal untuk role pelayanan, contoh petugas, jadwal, kegiatan, dan pengumuman.
-- [ ] Buat Zod schema untuk jadwal, petugas, role, kegiatan, pengumuman, dan pengaturan website.
-- [ ] Buat service layer untuk query data publik dan admin.
+- [x] Definisikan schema Prisma untuk `ServiceRole`, `Person`, `Schedule`, `ScheduleAssignment`, `Event`, `Announcement`, dan `SiteSetting`.
+- [x] Buat migration awal Prisma.
+- [x] Buat seed data awal untuk role pelayanan, contoh petugas, jadwal, kegiatan, dan pengumuman.
+- [x] Buat Zod schema untuk jadwal, petugas, role, kegiatan, pengumuman, dan pengaturan website.
+- [x] Buat service layer untuk query data publik dan admin.
 
 ### Phase 3 — Authentication dan Admin Layout
 
