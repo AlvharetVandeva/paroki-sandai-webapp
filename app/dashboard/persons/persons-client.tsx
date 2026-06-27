@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
@@ -88,10 +88,8 @@ export function PersonsClient({ persons, roles }: { persons: Person[]; roles: Ro
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger onClick={() => setDeleteId(p.id)}>
-                        <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </AlertDialogTrigger>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <AlertDialog open={deleteId === p.id} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>Hapus Petugas</AlertDialogTitle>

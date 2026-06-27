@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Trash2, X } from "lucide-react";
 
@@ -123,10 +123,10 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
                   </div>
                 </TableCell>
                 <TableCell>
-                  <AlertDialog>
-                    <AlertDialogTrigger onClick={() => setDeleteId(s.id)}>
-                      <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                    </AlertDialogTrigger>
+                  <Button variant="ghost" size="icon" onClick={() => setDeleteId(s.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                  <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Jadwal</AlertDialogTitle>
