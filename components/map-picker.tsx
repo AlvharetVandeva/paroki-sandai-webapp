@@ -5,6 +5,8 @@ import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
+// Force initialization of the geocoder control — extends L.Control
+import "leaflet-control-geocoder";
 
 // Fix default marker icon (broken in webpack bundling)
 const iconUrl = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
