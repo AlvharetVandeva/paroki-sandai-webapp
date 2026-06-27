@@ -45,7 +45,7 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
   }
 
   function addAssignment() {
-    setAssignments([...assignments, { roleId: roles[0]?.id ?? 0, personId: null }]);
+    setAssignments([...assignments, { roleId: 0, personId: null }]);
   }
 
   function updateAssignment(index: number, field: "roleId" | "personId", value: string) {
@@ -152,9 +152,9 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
             <DialogDescription>Buat jadwal pelayanan baru.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-6 px-1 py-2 max-h-[65vh] overflow-y-auto">
               <div className="space-y-2">
-                <Label htmlFor="title">Kegiatan</Label>
+                <Label htmlFor="title">Kegiatan / Misa</Label>
                 <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -176,39 +176,44 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
                 <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Petugas</Label>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <Label className="text-base font-semibold">Petugas Pelayanan</Label>
                   <Button type="button" variant="outline" size="sm" onClick={addAssignment}>
                     <Plus className="mr-1 h-3 w-3" />Tambah
                   </Button>
                 </div>
                 {assignments.map((a, i) => (
-                  <div key={i} className="flex items-end gap-2">
-                    <div className="flex-1 space-y-1">
-                      <Label className="text-xs">Role</Label>
-                      <Select value={a.roleId.toString()} onValueChange={(v) => updateAssignment(i, "roleId", v ?? "0")}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                  <div key={i} className="flex items-end gap-3 rounded-lg border bg-muted/30 p-3">
+                    <div className="flex-1 space-y-1.5">
+                      <Label className="text-xs font-medium">Pelayanan</Label>
+                      <Select value={a.roleId > 0 ? a.roleId.toString() : ""} onValueChange={(v) => updateAssignment(i, "roleId", v ?? "")}>
+                        <SelectTrigger><SelectValue placeholder="Pilih pelayanan">{roles.find((r) => r.id === a.roleId)?.name}</SelectValue></SelectTrigger>
                         <SelectContent>
                           {roles.map((r) => <SelectItem key={r.id} value={r.id.toString()}>{r.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <Label className="text-xs">Petugas</Label>
+                    <div className="flex-1 space-y-1.5">
+                      <Label className="text-xs font-medium">Nama Petugas</Label>
                       <Select value={a.personId?.toString() ?? ""} onValueChange={(v) => updateAssignment(i, "personId", v ?? "")}>
-                        <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Pilih petugas">{persons.find((p) => p.id === a.personId)?.fullName}</SelectValue></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">— Tidak Ada —</SelectItem>
                           {personsByRole(a.roleId).map((p) => <SelectItem key={p.id} value={p.id.toString()}>{p.fullName}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeAssignment(i)}>
+                    <Button type="button" variant="ghost" size="icon" className="mt-6" onClick={() => removeAssignment(i)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
+                {assignments.length === 0 && (
+                  <p className="text-sm text-muted-foreground italic">
+                    Belum ada petugas. Klik "Tambah" untuk menambahkan.
+                  </p>
+                )}
               </div>
             </div>
             <DialogFooter>
