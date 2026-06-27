@@ -2,69 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createEvent, updateEvent, deleteEvent } from "@/actions/event.action";
+import Link from "next/link";
+import { deleteEvent } from "@/actions/event.action";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import dynamic from "next/dynamic";
-
-const MapPicker = dynamic(() => import("@/components/map-picker"), { ssr: false });
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-type Event = { id: number; title: string; description: string | null; date: Date; imageUrl: string | null; location: string | null; latitude: number | null; longitude: number | null; address: string | null };
+type Event = {
+  id: number; title: string; description: string | null; date: Date;
+  imageUrl: string | null; location: string | null;
+  latitude: number | null; longitude: number | null; address: string | null;
+};
 
 export function EventsClient({ events }: { events: Event[] }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [edit, setEdit] = useState<Event | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [address, setAddress] = useState("");
 
-  function openCreate() { setEdit(null); setTitle(""); setDescription(""); setDate(""); setLocation(""); setLatitude(""); setLongitude(""); setAddress(""); setOpen(true); }
-  function openEdit(e: Event) {
-    setEdit(e); setTitle(e.title); setDescription(e.description ?? "");
-    setDate(new Date(e.date).toISOString().slice(0, 16));
-    setLocation(e.location ?? "");
-    setLatitude(e.latitude?.toString() ?? "");
-    setLongitude(e.longitude?.toString() ?? "");
-    setAddress(e.address ?? "");
-    setOpen(true);
+  function handleDelete() {
+    if (deleteId) { deleteEvent(deleteId); setDeleteId(null); router.refresh(); }
   }
-
-  async function handleSubmit(ev: React.FormEvent) {
-    ev.preventDefault();
-    const data = {
-      title,
-      description: description || undefined,
-      date: new Date(date),
-      location: location || null,
-      latitude: latitude ? Number(latitude) : null,
-      longitude: longitude ? Number(longitude) : null,
-      address: address || null,
-    };
-    if (edit) await updateEvent(edit.id, data as any);
-    else await createEvent(data as any);
-    setOpen(false); router.refresh();
-  }
-
-  function handleDelete() { if (deleteId) { deleteEvent(deleteId); setDeleteId(null); router.refresh(); } }
 
   return (
     <div className="space-y-6">
@@ -73,7 +35,9 @@ export function EventsClient({ events }: { events: Event[] }) {
           <h1 className="text-3xl font-bold tracking-tight">Kegiatan</h1>
           <p className="text-muted-foreground">Kelola kegiatan mendatang.</p>
         </div>
-        <Button onClick={openCreate}><Plus className="mr-2 h-4 w-4" />Tambah Kegiatan</Button>
+        <Link href="/dashboard/events/create">
+          <Button><Plus className="mr-2 h-4 w-4" />Tambah Kegiatan</Button>
+        </Link>
       </div>
 
       <div className="rounded-md border">
@@ -101,8 +65,12 @@ export function EventsClient({ events }: { events: Event[] }) {
                 <TableCell className="text-muted-foreground max-w-xs truncate">{ev.description ?? "—"}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(ev)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(ev.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <Link href={`/dashboard/events/${ev.id}/edit`}>
+                      <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(ev.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                     <AlertDialog open={deleteId === ev.id} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                       <AlertDialogContent>
                         <AlertDialogHeader>
@@ -122,58 +90,6 @@ export function EventsClient({ events }: { events: Event[] }) {
           </TableBody>
         </Table>
       </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{edit ? "Edit Kegiatan" : "Tambah Kegiatan"}</DialogTitle>
-            <DialogDescription>Isi detail kegiatan.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Judul</Label>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="desc">Deskripsi</Label>
-                <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Tanggal</Label>
-                <Input id="date" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="loc">Nama Lokasi</Label>
-                <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Gereja Paroki Sandai" />
-              </div>
-              <div className="space-y-2">
-                <Label>Pilih Lokasi di Peta</Label>
-                <div className="flex gap-2 text-xs text-muted-foreground mb-1">
-                  <span>Lat: {latitude || "—"}</span>
-                  <span>Lng: {longitude || "—"}</span>
-                </div>
-                <MapPicker
-                  latitude={latitude}
-                  longitude={longitude}
-                  onLocationChange={(lat, lng, addr) => {
-                    setLatitude(lat);
-                    setLongitude(lng);
-                    if (addr) setAddress(addr);
-                  }}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="addr">Alamat Lengkap</Label>
-                <Textarea id="addr" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Jl. Gereja No. 1, Sandai..." />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">{edit ? "Simpan" : "Buat"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
