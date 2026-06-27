@@ -4,35 +4,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getScheduleCountThisMonth, getUpcomingSchedules } from "@/services/schedule.service";
+import { getUpcomingEvents } from "@/services/event.service";
 import { getAllPersons } from "@/services/person.service";
 import { getAllRoles } from "@/services/service-role.service";
-import { getAllAnnouncements } from "@/services/announcement.service";
-import { getAllSchedules, getUpcomingSchedules } from "@/services/schedule.service";
-import { getUpcomingEvents } from "@/services/event.service";
 import {
   CalendarDays,
   Users,
   Tags,
-  Megaphone,
-  Clock,
   PartyPopper,
+  Clock,
 } from "lucide-react";
 
 export default async function DashboardPage() {
-  const [persons, roles, announcements, allSchedules, upcomingSchedules, upcomingEvents] =
+  const [scheduleCount, persons, roles, upcomingSchedules, upcomingEvents] =
     await Promise.all([
+      getScheduleCountThisMonth(),
       getAllPersons(),
       getAllRoles(),
-      getAllAnnouncements(),
-      getAllSchedules(),
       getUpcomingSchedules(5),
       getUpcomingEvents(5),
     ]);
 
   const summaryCards = [
     {
-      title: "Jadwal Pelayanan",
-      value: allSchedules.length,
+      title: "Jadwal Bulan Ini",
+      value: scheduleCount,
       desc: `${upcomingSchedules.length} akan datang`,
       icon: CalendarDays,
     },
@@ -53,12 +50,6 @@ export default async function DashboardPage() {
       value: upcomingEvents.length,
       desc: "Akan datang",
       icon: PartyPopper,
-    },
-    {
-      title: "Pengumuman",
-      value: announcements.length,
-      desc: "Total pengumuman",
-      icon: Megaphone,
     },
   ];
 
