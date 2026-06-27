@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("@/components/map-picker"), { ssr: false });
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -144,15 +147,21 @@ export function EventsClient({ events }: { events: Event[] }) {
                 <Label htmlFor="loc">Nama Lokasi</Label>
                 <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Gereja Paroki Sandai" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="lat">Latitude</Label>
-                  <Input id="lat" type="number" step="any" value={latitude} onChange={(e) => setLatitude(e.target.value)} placeholder="-1.2345" />
+              <div className="space-y-2">
+                <Label>Pilih Lokasi di Peta</Label>
+                <div className="flex gap-2 text-xs text-muted-foreground mb-1">
+                  <span>Lat: {latitude || "—"}</span>
+                  <span>Lng: {longitude || "—"}</span>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lng">Longitude</Label>
-                  <Input id="lng" type="number" step="any" value={longitude} onChange={(e) => setLongitude(e.target.value)} placeholder="110.1234" />
-                </div>
+                <MapPicker
+                  latitude={latitude}
+                  longitude={longitude}
+                  onLocationChange={(lat, lng, addr) => {
+                    setLatitude(lat);
+                    setLongitude(lng);
+                    if (addr) setAddress(addr);
+                  }}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="addr">Alamat Lengkap</Label>
