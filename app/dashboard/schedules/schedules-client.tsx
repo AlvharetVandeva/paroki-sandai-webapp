@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createSchedule, deleteSchedule } from "@/actions/schedule.action";
+import { createSchedule, updateSchedule, deleteSchedule } from "@/actions/schedule.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X } from "lucide-react";
 
 type Role = { id: number; name: string };
 type Person = { id: number; fullName: string; role: { id: number; name: string } | null };
@@ -30,6 +30,7 @@ type Schedule = { id: number; title: string; startAt: Date; endAt: Date; locatio
 export function SchedulesClient({ schedules, roles, persons }: { schedules: Schedule[]; roles: Role[]; persons: Person[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Schedule | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   // Form fields
@@ -42,7 +43,20 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
   const [formError, setFormError] = useState<string | null>(null);
 
   function openCreate() {
+    setEditTarget(null);
     setTitle(""); setStartAt(""); setEndAt(""); setLocation(""); setDescription(""); setAssignments([]); setFormError(null); setOpen(true);
+  }
+
+  function openEdit(s: Schedule) {
+    setEditTarget(s);
+    setTitle(s.title);
+    setStartAt(new Date(s.startAt).toISOString().slice(0, 16));
+    setEndAt(new Date(s.endAt).toISOString().slice(0, 16));
+    setLocation(s.location);
+    setDescription(s.description ?? "");
+    setAssignments(s.assignments.map((a) => ({ roleId: a.role.id, personId: a.person?.id ?? null })));
+    setFormError(null);
+    setOpen(true);
   }
 
   function addAssignment() {
@@ -64,16 +78,21 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    const result = await createSchedule({
+    const payload = {
       title,
       startAt: new Date(startAt),
       endAt: new Date(endAt),
       location: location || "Gereja Paroki",
       description,
       assignments: assignments.filter((a) => a.roleId > 0),
-    } as any);
-    if (!result.success) {
-      setFormError(result.error);
+    };
+
+    const result = editTarget
+      ? await updateSchedule(editTarget.id, payload)
+      : await createSchedule(payload as any);
+
+    if (!result?.success) {
+      setFormError(result?.error ?? "Gagal menyimpan jadwal");
       return;
     }
     setOpen(false);
@@ -129,9 +148,14 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => setDeleteId(s.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(s)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteId(s.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                   <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -154,8 +178,8 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Tambah Jadwal</DialogTitle>
-            <DialogDescription>Buat jadwal pelayanan baru.</DialogDescription>
+            <DialogTitle>{editTarget ? "Edit Jadwal" : "Tambah Jadwal"}</DialogTitle>
+            <DialogDescription>{editTarget ? "Ubah jadwal pelayanan." : "Buat jadwal pelayanan baru."}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-6 px-1 py-2 max-h-[65vh] overflow-y-auto">
@@ -226,7 +250,7 @@ export function SchedulesClient({ schedules, roles, persons }: { schedules: Sche
               <p className="text-sm text-destructive">{formError}</p>
             )}
             <DialogFooter>
-              <Button type="submit">Buat Jadwal</Button>
+              <Button type="submit">{editTarget ? "Simpan" : "Buat Jadwal"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -38,10 +38,26 @@ export async function updateSchedule(
     endAt?: Date;
     location?: string;
     description?: string;
+    assignments?: { roleId: number; personId?: number | null }[];
   },
 ) {
-  await prisma.schedule.update({ where: { id }, data });
+  if (data.assignments) {
+    await prisma.scheduleAssignment.deleteMany({ where: { scheduleId: id } });
+    if (data.assignments.length > 0) {
+      await prisma.scheduleAssignment.createMany({
+        data: data.assignments.map((a) => ({
+          scheduleId: id,
+          roleId: a.roleId,
+          personId: a.personId ?? undefined,
+        })),
+      });
+    }
+  }
+
+  const { assignments: _, ...updateData } = data;
+  await prisma.schedule.update({ where: { id }, data: updateData });
   revalidatePath("/dashboard/schedules");
+  return { success: true, error: null };
 }
 
 export async function deleteSchedule(id: number) {
