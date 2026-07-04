@@ -19,6 +19,7 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   userRoles     UserRole[]
+  news          News[]
 }
 
 model Role {
@@ -121,4 +122,28 @@ model Announcement {
 model SiteSetting {
   key   String @id
   value String @db.Text
+}
+
+// ─── CMS Berita ─────────────────────────────────────────────────────────────
+
+model News {
+  id          Int          @id @default(autoincrement())
+  title       String
+  slug        String       @unique
+  content     String       @db.Text
+  coverImage  String?
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id])
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  images      NewsImage[]
+}
+
+model NewsImage {
+  id        Int      @id @default(autoincrement())
+  newsId    Int
+  url       String
+  caption   String?
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }

@@ -5,6 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
 import {
   Bold,
   Italic,
@@ -20,7 +21,11 @@ import {
   ListOrdered,
   Heading2,
   Heading3,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
+
+import { useRef, useState } from "react";
 
 interface RichTextEditorProps {
   value: string;
@@ -28,6 +33,9 @@ interface RichTextEditorProps {
 }
 
 const MenuBar = ({ editor }: { editor: any }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!editor) {
     return null;
   }
@@ -53,6 +61,37 @@ const MenuBar = ({ editor }: { editor: any }) => {
     }
 
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Gagal mengunggah gambar");
+      }
+
+      editor.chain().focus().setImage({ src: data.url }).run();
+    } catch (error: any) {
+      alert(error.message || "Terjadi kesalahan saat mengunggah gambar");
+    } finally {
+      setIsUploading(false);
+      // Reset input value so the same file can be uploaded again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   return (
@@ -110,6 +149,24 @@ const MenuBar = ({ editor }: { editor: any }) => {
           <button type="button" onClick={setLink} className={btnClass(editor.isActive("link"))} title="Add Link">
             <LinkIcon className="w-5 h-5" />
           </button>
+          
+          {/* Image Upload Button */}
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            ref={fileInputRef} 
+            onChange={handleImageUpload} 
+          />
+          <button 
+            type="button" 
+            onClick={() => fileInputRef.current?.click()} 
+            className={btnClass(false)} 
+            title="Upload Image"
+            disabled={isUploading}
+          >
+            {isUploading ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <ImageIcon className="w-5 h-5" />}
+          </button>
         </div>
       </div>
     </div>
@@ -130,6 +187,11 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-primary underline cursor-pointer',
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-md max-w-full my-4 h-auto',
         },
       }),
     ],

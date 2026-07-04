@@ -24,6 +24,7 @@ import {
   Tags,
   PartyPopper,
   Megaphone,
+  Newspaper,
   Settings,
   LogOut,
   ShieldAlert,
@@ -31,13 +32,14 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Beranda", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Jadwal", href: "/dashboard/schedules", icon: Calendar },
-  { label: "Petugas", href: "/dashboard/persons", icon: Users },
-  { label: "Kegiatan", href: "/dashboard/events", icon: PartyPopper },
-  { label: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone },
-  { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags },
-  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
+  { label: "Beranda", href: "/dashboard", icon: LayoutDashboard, resource: "dashboard" },
+  { label: "Jadwal", href: "/dashboard/schedules", icon: Calendar, resource: "schedules" },
+  { label: "Petugas", href: "/dashboard/persons", icon: Users, resource: "persons" },
+  { label: "Kegiatan", href: "/dashboard/events", icon: PartyPopper, resource: "events" },
+  { label: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone, resource: "announcements" },
+  { label: "Berita", href: "/dashboard/news", icon: Newspaper, resource: "news" },
+  { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags, resource: "roles" },
+  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings, resource: "settings" },
 ];
 
 import { hasPermission } from "@/lib/rbac";
@@ -85,7 +87,7 @@ export default function AppSidebar({
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => {
+              {NAV_ITEMS.filter((item) => hasPermission(userPermissions, item.resource, "read")).map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
                 return (

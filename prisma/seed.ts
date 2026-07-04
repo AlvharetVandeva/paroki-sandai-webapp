@@ -43,6 +43,11 @@ const PERMISSIONS = [
   { action: "read",   resource: "announcements", description: "Melihat data pengumuman" },
   { action: "update", resource: "announcements", description: "Mengubah pengumuman" },
   { action: "delete", resource: "announcements", description: "Menghapus pengumuman" },
+  // News
+  { action: "create", resource: "news", description: "Menulis berita baru" },
+  { action: "read",   resource: "news", description: "Melihat data berita" },
+  { action: "update", resource: "news", description: "Mengubah konten berita" },
+  { action: "delete", resource: "news", description: "Menghapus berita" },
   // Settings
   { action: "read",   resource: "settings", description: "Melihat pengaturan website" },
   { action: "update", resource: "settings", description: "Mengubah pengaturan website" },
