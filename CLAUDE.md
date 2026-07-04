@@ -112,6 +112,8 @@ Ikuti instruksi dari `AGENTS.md`: versi Next.js pada proyek ini memiliki breakin
 - CRUD kegiatan mendatang.
 - CRUD pengumuman singkat.
 - CRUD Berita (News CMS) dengan Rich Text Editor dan Manajemen Gambar.
+- CRUD Album Galeri Foto.
+- CMS Sejarah Gereja (Single Page Settings).
 - Pengaturan informasi website seperti alamat, kontak, sosial media, dan peta.
 
 ## Data Model Awal
@@ -126,7 +128,9 @@ Gunakan model relasional sebagai dasar:
 - `Announcement`: pengumuman singkat.
 - `News`: artikel atau berita paroki (mendukung Tiptap rich text dan alur Draft/Publish).
 - `NewsImage`: galeri foto ekstra yang berelasi dengan berita.
-- `SiteSetting`: informasi umum website seperti alamat, kontak, sosial media, dan peta.
+- `Gallery`: album utama untuk koleksi foto dokumentasi paroki.
+- `GalleryImage`: foto-foto tunggal yang ada di dalam sebuah album galeri.
+- `SiteSetting`: menyimpan konten single-page seperti Sejarah Gereja (@db.LongText) serta informasi umum website (alamat, kontak, sosial media, peta).
 
 ## List Task Pembangunan Website dari Awal Sampai Selesai
 
@@ -173,6 +177,8 @@ Gunakan model relasional sebagai dasar:
 - [x] Buat CRUD Berita (News CMS) terintegrasi Tiptap Rich Text Editor.
 - [x] Implementasi fitur unggah gambar (WebP compression via sharp) dan galeri ekstra.
 - [x] Implementasi alur kerja Draft/Publish dan validasi Zod untuk Berita.
+- [x] Buat CRUD Album Galeri Foto (manajemen multiple images).
+- [x] Buat CMS Sejarah Gereja (Single Page Editor) yang mengonversi paste/drop gambar langsung ke WebP.
 - [x] Buat pengaturan informasi website: alamat, kontak, peta, sosial media.
 - [x] Tambahkan validasi form, loading state, empty state, error state, dan confirmation dialog.
 
@@ -198,6 +204,8 @@ Gunakan model relasional sebagai dasar:
 - [ ] Buat halaman daftar pengumuman.
 - [ ] Buat halaman daftar/detail kegiatan jika dibutuhkan.
 - [ ] Buat halaman daftar Berita dan baca detail Berita.
+- [ ] Buat halaman daftar dan detail Album Galeri.
+- [ ] Buat halaman publik Sejarah Gereja.
 
 ### Phase 7 — Quality, Testing, dan Verification
 
