@@ -111,6 +111,7 @@ Ikuti instruksi dari `AGENTS.md`: versi Next.js pada proyek ini memiliki breakin
 - CRUD role pelayanan, misalnya Romo, Lektor, Prodiakon, Pemazmur, Misdinar.
 - CRUD kegiatan mendatang.
 - CRUD pengumuman singkat.
+- CRUD Berita (News CMS) dengan Rich Text Editor dan Manajemen Gambar.
 - Pengaturan informasi website seperti alamat, kontak, sosial media, dan peta.
 
 ## Data Model Awal
@@ -123,6 +124,8 @@ Gunakan model relasional sebagai dasar:
 - `ScheduleAssignment`: relasi antara jadwal, petugas, dan role pelayanan.
 - `Event`: kegiatan mendatang untuk section "5 Kegiatan Mendatang".
 - `Announcement`: pengumuman singkat.
+- `News`: artikel atau berita paroki (mendukung Tiptap rich text dan alur Draft/Publish).
+- `NewsImage`: galeri foto ekstra yang berelasi dengan berita.
 - `SiteSetting`: informasi umum website seperti alamat, kontak, sosial media, dan peta.
 
 ## List Task Pembangunan Website dari Awal Sampai Selesai
@@ -167,6 +170,9 @@ Gunakan model relasional sebagai dasar:
 - [x] Buat CRUD jadwal pelayanan dengan assignment petugas berdasarkan role.
 - [x] Buat CRUD kegiatan mendatang.
 - [x] Buat CRUD pengumuman singkat.
+- [x] Buat CRUD Berita (News CMS) terintegrasi Tiptap Rich Text Editor.
+- [x] Implementasi fitur unggah gambar (WebP compression via sharp) dan galeri ekstra.
+- [x] Implementasi alur kerja Draft/Publish dan validasi Zod untuk Berita.
 - [x] Buat pengaturan informasi website: alamat, kontak, peta, sosial media.
 - [x] Tambahkan validasi form, loading state, empty state, error state, dan confirmation dialog.
 
@@ -191,6 +197,7 @@ Gunakan model relasional sebagai dasar:
 - [ ] Buat halaman hubungi kami/kontak.
 - [ ] Buat halaman daftar pengumuman.
 - [ ] Buat halaman daftar/detail kegiatan jika dibutuhkan.
+- [ ] Buat halaman daftar Berita dan baca detail Berita.
 
 ### Phase 7 — Quality, Testing, dan Verification
 
