@@ -1,19 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { deleteEvent } from "@/actions/event.action";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Eye, Search } from "lucide-react";
+import { Eye, Pencil, Search, Plus } from "lucide-react";
 import {
   ColumnDef,
   flexRender,
@@ -22,51 +11,47 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DeleteScheduleButton } from "./delete-schedule-button";
 
-type Event = {
-  id: number; 
-  title: string; 
-  description: string | null; 
-  date: Date;
-  imageUrl: string | null; 
-  location: string | null;
-  latitude: number | null; 
-  longitude: number | null;
+type Schedule = {
+  id: number;
+  title: string;
+  startAt: Date;
+  location: string;
 };
 
-export function EventsClient({ events }: { events: Event[] }) {
-  const router = useRouter();
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+interface SchedulesClientProps {
+  data: Schedule[];
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
+export function SchedulesClient({ data, canCreate, canUpdate, canDelete }: SchedulesClientProps) {
   const [globalFilter, setGlobalFilter] = useState("");
 
-  async function handleDelete() {
-    if (deleteId) { 
-      await deleteEvent(deleteId); 
-      setDeleteId(null); 
-      router.refresh(); 
-    }
-  }
-
-  const columns: ColumnDef<Event>[] = [
+  const columns: ColumnDef<Schedule>[] = [
     {
       accessorKey: "title",
-      header: "Judul Kegiatan",
+      header: "Kegiatan",
       cell: ({ row }) => <div className="font-medium">{row.getValue("title")}</div>,
     },
     {
-      accessorKey: "date",
+      accessorKey: "startAt",
       header: "Tanggal",
       cell: ({ row }) => {
-        const d = new Date(row.getValue("date"));
+        const date = new Date(row.getValue("startAt"));
         return (
           <span>
-            {d.toLocaleDateString("id-ID", {
+            {date.toLocaleDateString("id-ID", {
               weekday: "long",
-              year: "numeric",
-              month: "long",
               day: "numeric",
+              month: "short",
               hour: "2-digit",
-              minute: "2-digit"
+              minute: "2-digit",
             })}
           </span>
         );
@@ -75,24 +60,23 @@ export function EventsClient({ events }: { events: Event[] }) {
     {
       accessorKey: "location",
       header: "Lokasi",
-      cell: ({ row }) => <div>{row.getValue("location") ?? "-"}</div>,
     },
     {
       id: "actions",
       header: () => <div className="text-right">Aksi</div>,
       cell: ({ row }) => {
-        const ev = row.original;
+        const s = row.original;
         return (
           <div className="flex items-center justify-end gap-1">
-            <Button variant="ghost" size="icon" render={<Link href={`/dashboard/events/${ev.id}`} />} title="Detail" nativeButton={false}>
+            <Button variant="ghost" size="icon" render={<Link href={`/dashboard/schedules/${s.id}`} />} nativeButton={false} title="Lihat Detail">
               <Eye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" render={<Link href={`/dashboard/events/${ev.id}/edit`} />} title="Edit" nativeButton={false}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setDeleteId(ev.id)} title="Hapus">
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
+            {canUpdate && (
+              <Button variant="ghost" size="icon" render={<Link href={`/dashboard/schedules/${s.id}/edit`} />} nativeButton={false} title="Edit Jadwal">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+            {canDelete && <DeleteScheduleButton id={s.id} title={s.title} />}
           </div>
         );
       },
@@ -100,7 +84,7 @@ export function EventsClient({ events }: { events: Event[] }) {
   ];
 
   const table = useReactTable({
-    data: events,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -115,19 +99,21 @@ export function EventsClient({ events }: { events: Event[] }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Kegiatan Paroki</h1>
-          <p className="text-muted-foreground">Kelola semua kegiatan dan acara mendatang.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Jadwal Pelayanan</h1>
+          <p className="text-muted-foreground">Kelola jadwal misa dan kegiatan pelayanan.</p>
         </div>
-        <Button render={<Link href="/dashboard/events/create" />} nativeButton={false}>
-          <Plus className="mr-2 h-4 w-4" /> Tambah Kegiatan
-        </Button>
+        {canCreate && (
+          <Button render={<Link href="/dashboard/schedules/create" />} nativeButton={false}>
+            <Plus className="mr-2 h-4 w-4" /> Tambah Jadwal
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Cari kegiatan..."
+            placeholder="Cari jadwal..."
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
             className="pl-8"
@@ -164,14 +150,15 @@ export function EventsClient({ events }: { events: Event[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Tidak ada kegiatan ditemukan.
+                  Tidak ada data yang ditemukan.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-
+      
+      {/* Pagination Controls */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
@@ -190,19 +177,6 @@ export function EventsClient({ events }: { events: Event[] }) {
           Selanjutnya
         </Button>
       </div>
-
-      <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Kegiatan</AlertDialogTitle>
-            <AlertDialogDescription>Apakah Anda yakin ingin menghapus kegiatan ini? Data yang terhapus tidak dapat dikembalikan.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">Hapus</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

@@ -38,7 +38,7 @@ const NAV_ITEMS = [
   { label: "Kegiatan", href: "/dashboard/events", icon: PartyPopper, resource: "events" },
   { label: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone, resource: "announcements" },
   { label: "Berita", href: "/dashboard/news", icon: Newspaper, resource: "news" },
-  { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags, resource: "roles" },
+  { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags, resource: "service_roles" },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings, resource: "settings" },
 ];
 
@@ -146,3 +146,4 @@ export default function AppSidebar({
     </Sidebar>
   );
 }
+

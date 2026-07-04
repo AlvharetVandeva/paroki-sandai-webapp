@@ -28,11 +28,7 @@ export default async function AnnouncementDetailPage({
             <p className="text-muted-foreground">Lihat detail pengumuman yang dipilih.</p>
           </div>
         </div>
-        <Button asChild>
-          <Link href={`/dashboard/announcements/${id}/edit`} className="inline-flex items-center justify-center">
-            <Pencil className="mr-2 h-4 w-4" /> Edit Pengumuman
-          </Link>
-        </Button>
+        <Button variant="default" render={<Link href={`/dashboard/announcements/${id}/edit`} />} nativeButton={false}><Pencil className="mr-2 h-4 w-4" /> Edit Pengumuman</Button>
       </div>
 
       <Card>
@@ -58,6 +54,7 @@ export default async function AnnouncementDetailPage({
     </div>
   );
 }
+
 
 
 
