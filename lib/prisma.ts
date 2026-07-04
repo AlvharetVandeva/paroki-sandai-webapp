@@ -5,6 +5,8 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Force Next.js Turbopack cache invalidation for Gallery CMS
+
 // Menggunakan konfigurasi object secara langsung untuk menghindari bug parsing URL
 // Menggunakan konfigurasi object secara langsung untuk adapter MariaDB Prisma
 const adapter = new PrismaMariaDb({

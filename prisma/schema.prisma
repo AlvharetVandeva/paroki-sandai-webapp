@@ -147,3 +147,24 @@ model NewsImage {
   caption   String?
   news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
 }
+
+// ─── CMS Galeri Foto ────────────────────────────────────────────────────────
+
+model Gallery {
+  id          Int            @id @default(autoincrement())
+  title       String
+  slug        String         @unique
+  description String?        @db.Text
+  coverImage  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      GalleryImage[]
+}
+
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  galleryId Int
+  url       String
+  caption   String?
+  gallery   Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+}
