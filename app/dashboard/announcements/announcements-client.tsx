@@ -79,16 +79,8 @@ export function AnnouncementsClient({ announcements }: { announcements: Ann[] })
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" asChild title="Lihat Detail">
-                      <Link href={`/dashboard/announcements/${a.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" size="icon" asChild title="Edit">
-                      <Link href={`/dashboard/announcements/${a.id}/edit`}>
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <Button variant="ghost" size="icon" render={<Link href={`/dashboard/announcements/${a.id}`} />} title="Lihat Detail"><Eye className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" render={<Link href={`/dashboard/announcements/${a.id}/edit`} />} title="Edit"><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => setDeleteId(a.id)} title="Hapus">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -119,3 +111,4 @@ export function AnnouncementsClient({ announcements }: { announcements: Ann[] })
     </div>
   );
 }
+
