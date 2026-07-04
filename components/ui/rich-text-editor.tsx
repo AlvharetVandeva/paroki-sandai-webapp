@@ -201,6 +201,81 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
         class:
           "block w-full px-0 text-sm text-gray-800 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400 min-h-[150px] max-h-[400px] resize-y overflow-y-auto prose prose-sm max-w-none dark:prose-invert focus:outline-none",
       },
+      handlePaste: (view, event, slice) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        const hasImage = items.some((item) => item.type.startsWith("image"));
+
+        if (hasImage) {
+          event.preventDefault();
+          for (const item of items) {
+            if (item.type.startsWith("image")) {
+              const file = item.getAsFile();
+              if (file) {
+                const uploadImage = async () => {
+                  try {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    const res = await fetch("/api/upload", { method: "POST", body: formData });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                      const { schema } = view.state;
+                      const node = schema.nodes.image.create({ src: data.url });
+                      const transaction = view.state.tr.replaceSelectionWith(node);
+                      view.dispatch(transaction);
+                    } else {
+                      alert(data.error || "Gagal mengunggah gambar saat paste");
+                    }
+                  } catch (e) {
+                    console.error("Paste upload failed", e);
+                  }
+                };
+                uploadImage();
+              }
+            }
+          }
+          return true;
+        }
+        return false;
+      },
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+          const files = Array.from(event.dataTransfer.files);
+          const hasImage = files.some((file) => file.type.startsWith("image"));
+
+          if (hasImage) {
+            event.preventDefault();
+            for (const file of files) {
+              if (file.type.startsWith("image")) {
+                const uploadImage = async () => {
+                  try {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    const res = await fetch("/api/upload", { method: "POST", body: formData });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                      const { schema } = view.state;
+                      const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+                      const node = schema.nodes.image.create({ src: data.url });
+
+                      if (coordinates) {
+                        const transaction = view.state.tr.insert(coordinates.pos, node);
+                        view.dispatch(transaction);
+                      }
+                    } else {
+                      alert(data.error || "Gagal mengunggah gambar saat drop");
+                    }
+                  } catch (e) {
+                    console.error("Drop upload failed", e);
+                  }
+                };
+                uploadImage();
+              }
+            }
+            return true;
+          }
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());

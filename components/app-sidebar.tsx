@@ -29,7 +29,8 @@ import {
   LogOut,
   ShieldAlert,
   UserCog,
-  ImageIcon
+  ImageIcon,
+  Landmark,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -40,6 +41,7 @@ const NAV_ITEMS = [
   { label: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone, resource: "announcements" },
   { label: "Berita", href: "/dashboard/news", icon: Newspaper, resource: "news" },
   { label: "Galeri", href: "/dashboard/gallery", icon: ImageIcon, resource: "gallery" },
+  { label: "Sejarah Gereja", href: "/dashboard/history", icon: Landmark, resource: "settings" },
   { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags, resource: "service_roles" },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings, resource: "settings" },
 ];
