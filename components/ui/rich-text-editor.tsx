@@ -2,14 +2,24 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Toggle } from "@/components/ui/toggle";
-import { 
-  Bold, 
-  Italic, 
-  Strikethrough, 
-  List, 
-  ListOrdered, 
-  Heading2 
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import Link from "@tiptap/extension-link";
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  Quote,
+  Link as LinkIcon,
+  Code,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  ListOrdered,
+  Heading2,
+  Heading3,
 } from "lucide-react";
 
 interface RichTextEditorProps {
@@ -22,51 +32,86 @@ const MenuBar = ({ editor }: { editor: any }) => {
     return null;
   }
 
+  const btnClass = (isActive: boolean) =>
+    `p-2 rounded cursor-pointer ${
+      isActive
+        ? "bg-gray-100 text-gray-900 dark:bg-gray-600 dark:text-white"
+        : "text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+    }`;
+
+  const setLink = () => {
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("URL", previousUrl);
+
+    if (url === null) {
+      return;
+    }
+
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
+
   return (
-    <div className="flex flex-wrap gap-1 border-b p-2 bg-muted/50 rounded-t-md">
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("bold")}
-        onPressedChange={() => editor.chain().focus().toggleBold().run()}
-      >
-        <Bold className="h-4 w-4" />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("italic")}
-        onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-      >
-        <Italic className="h-4 w-4" />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("strike")}
-        onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-      >
-        <Strikethrough className="h-4 w-4" />
-      </Toggle>
-      <div className="w-px h-6 bg-border mx-1 self-center" />
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("heading", { level: 2 })}
-        onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-      >
-        <Heading2 className="h-4 w-4" />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("bulletList")}
-        onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
-      >
-        <List className="h-4 w-4" />
-      </Toggle>
-      <Toggle
-        size="sm"
-        pressed={editor.isActive("orderedList")}
-        onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
-      >
-        <ListOrdered className="h-4 w-4" />
-      </Toggle>
+    <div className="flex items-center justify-between px-3 py-2 border-b dark:border-gray-600">
+      <div className="flex flex-wrap items-center divide-gray-200 sm:divide-x sm:rtl:divide-x-reverse dark:divide-gray-600">
+        <div className="flex items-center space-x-1 rtl:space-x-reverse sm:pe-4">
+          <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={btnClass(editor.isActive("bold"))} title="Bold">
+            <Bold className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={btnClass(editor.isActive("italic"))} title="Italic">
+            <Italic className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={btnClass(editor.isActive("underline"))} title="Underline">
+            <UnderlineIcon className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={btnClass(editor.isActive("strike"))} title="Strikethrough">
+            <Strikethrough className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center space-x-1 rtl:space-x-reverse sm:ps-4 sm:pe-4">
+          <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={btnClass(editor.isActive("heading", { level: 2 }))} title="Heading 2">
+            <Heading2 className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={btnClass(editor.isActive("heading", { level: 3 }))} title="Heading 3">
+            <Heading3 className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center space-x-1 rtl:space-x-reverse sm:ps-4 sm:pe-4">
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={btnClass(editor.isActive({ textAlign: 'left' }))} title="Align Left">
+            <AlignLeft className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={btnClass(editor.isActive({ textAlign: 'center' }))} title="Align Center">
+            <AlignCenter className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={btnClass(editor.isActive({ textAlign: 'right' }))} title="Align Right">
+            <AlignRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex items-center space-x-1 rtl:space-x-reverse sm:ps-4">
+          <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={btnClass(editor.isActive("bulletList"))} title="Bullet List">
+            <List className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={btnClass(editor.isActive("orderedList"))} title="Ordered List">
+            <ListOrdered className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={btnClass(editor.isActive("blockquote"))} title="Blockquote">
+            <Quote className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={() => editor.chain().focus().toggleCodeBlock().run()} className={btnClass(editor.isActive("codeBlock"))} title="Code">
+            <Code className="w-5 h-5" />
+          </button>
+          <button type="button" onClick={setLink} className={btnClass(editor.isActive("link"))} title="Add Link">
+            <LinkIcon className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -75,15 +120,24 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: {
-          levels: [2, 3],
+        heading: { levels: [2, 3] },
+      }),
+      Underline,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline cursor-pointer',
         },
       }),
     ],
     content: value,
     editorProps: {
       attributes: {
-        class: "min-h-[150px] max-h-[400px] !w-full !max-w-full resize-y overflow-y-auto bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 prose prose-sm dark:prose-invert",
+        class:
+          "block w-full px-0 text-sm text-gray-800 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400 min-h-[150px] max-h-[400px] resize-y overflow-y-auto prose prose-sm max-w-none dark:prose-invert focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {
@@ -92,9 +146,11 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   });
 
   return (
-    <div className="w-full flex flex-col border rounded-md focus-within:ring-1 focus-within:ring-ring focus-within:border-ring transition-shadow bg-background">
+    <div className="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary">
       <MenuBar editor={editor} />
-      <EditorContent editor={editor} className="w-full flex-1 [&>div]:w-full [&>div]:h-full" />
+      <div className="px-4 py-2 bg-white rounded-b-lg dark:bg-gray-800">
+        <EditorContent editor={editor} className="w-full h-full" />
+      </div>
     </div>
   );
 }
