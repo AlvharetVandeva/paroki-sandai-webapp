@@ -1,6 +1,5 @@
 import { ScheduleForm } from "../schedule-form";
 import { getAllRoles } from "@/services/service-role.service";
-import { getAllPersons } from "@/services/person.service";
 import { auth } from "@/auth";
 import { hasPermission } from "@/lib/rbac";
 import { redirect } from "next/navigation";
@@ -15,14 +14,11 @@ export default async function CreateSchedulePage() {
     redirect("/dashboard/schedules");
   }
 
-  const [roles, persons] = await Promise.all([
-    getAllRoles(),
-    getAllPersons(),
-  ]);
+  const roles = await getAllRoles();
 
   return (
     <div className="space-y-6">
-      <ScheduleForm roles={roles} persons={persons} />
+      <ScheduleForm roles={roles} />
     </div>
   );
 }

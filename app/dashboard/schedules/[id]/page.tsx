@@ -127,7 +127,7 @@ export default async function ScheduleDetailPage(props: { params: Promise<{ id: 
                     <div key={assignment.id} className="flex flex-col gap-1 border-b pb-3 last:border-0">
                       <Badge variant="outline" className="w-fit">{assignment.role.name}</Badge>
                       <p className="font-medium text-sm mt-1">
-                        {assignment.person ? assignment.person.fullName : <span className="text-muted-foreground italic">Belum Ditentukan</span>}
+                        {(assignment as any).personName ? (assignment as any).personName : <span className="text-muted-foreground italic">Belum Ditentukan</span>}
                       </p>
                     </div>
                   ))}

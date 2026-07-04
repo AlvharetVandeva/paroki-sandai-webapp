@@ -76,7 +76,6 @@ model Person {
   email       String?              @unique
   roleId      Int?
   role        ServiceRole?         @relation(fields: [roleId], references: [id])
-  assignments ScheduleAssignment[]
 }
 
 model Schedule {
@@ -92,10 +91,9 @@ model Schedule {
 model ScheduleAssignment {
   id         Int         @id @default(autoincrement())
   scheduleId Int
-  personId   Int?
   roleId     Int
+  personName String?
   schedule   Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  person     Person?     @relation(fields: [personId], references: [id], onDelete: SetNull)
   role       ServiceRole @relation(fields: [roleId], references: [id])
 }
 
