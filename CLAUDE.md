@@ -16,7 +16,8 @@ Website ini dikembangkan untuk kebutuhan informasi dan pelayanan digital sebuah 
 - Bahasa: TypeScript.
 - Validasi: Zod sebagai single source of truth untuk schema validasi input.
 - ORM: PrismaJS.
-- Database/Auth/Storage: Supabase.
+- Database: MySQL (Localhost).
+- Autentikasi: NextAuth.js v5 (Auth.js) dengan kapabilitas RBAC (Role-Based Access Control).
 - Styling: Tailwind CSS.
 - UI public pages: Flowbite.
 - UI dashboard admin: shadcn/ui.
@@ -30,8 +31,8 @@ Ikuti instruksi dari `AGENTS.md`: versi Next.js pada proyek ini memiliki breakin
 ```text
 /
 ├── app/                  # Routing, pages, layouts; Server Components by default
-│   ├── (auth)/           # Route group auth seperti login/register
-│   ├── dashboard/        # Dashboard admin routes
+│   ├── (auth)/           # Route group auth seperti login
+│   ├── dashboard/        # Dashboard admin routes (Dilindungi oleh proxy.ts auth guard)
 │   ├── api/              # Route Handlers hanya untuk webhook/public API bila dibutuhkan
 │   ├── layout.tsx
 │   └── page.tsx
@@ -42,7 +43,6 @@ Ikuti instruksi dari `AGENTS.md`: versi Next.js pada proyek ini memiliki breakin
 │   └── forms/            # Komponen form spesifik
 ├── lib/                  # Singleton, konfigurasi, dan utility functions
 │   ├── prisma.ts
-│   ├── supabase.ts
 │   └── utils.ts
 ├── schemas/              # Zod validation schemas
 ├── services/             # Data Access Layer untuk query GET/read-only

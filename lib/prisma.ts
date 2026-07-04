@@ -1,20 +1,22 @@
 import { PrismaClient } from "@/lib/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }
-  const adapter = new PrismaPg({ connectionString });
-  return new PrismaClient({ adapter });
-}
+// Menggunakan konfigurasi object secara langsung untuk menghindari bug parsing URL
+// Menggunakan konfigurasi object secara langsung untuk adapter MariaDB Prisma
+const adapter = new PrismaMariaDb({
+  host: 'localhost',
+  port: 3306,
+  user: 'root',
+  password: '',
+  database: 'paroki_sandai',
+  connectionLimit: 10
+});
 
-const prisma = globalForPrisma.prisma ?? createPrismaClient();
+const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
