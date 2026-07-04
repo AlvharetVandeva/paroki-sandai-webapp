@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ScheduleAssignmentSchema = z.object({
   roleId: z.number().int().positive("Role harus dipilih"),
-  personName: z.string().optional(),
+  personId: z.number().int().positive("Petugas harus dipilih").optional().nullable(),
 });
 
 const ScheduleBase = z.object({

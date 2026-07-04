@@ -6,6 +6,7 @@ export async function getAllSchedules() {
     include: {
       assignments: {
         include: {
+          person: { include: { role: true } },
           role: true,
         },
       },
@@ -19,6 +20,7 @@ export async function getScheduleById(id: number) {
     include: {
       assignments: {
         include: {
+          person: { include: { role: true } },
           role: true,
         },
       },
@@ -33,7 +35,7 @@ export async function getUpcomingSchedules(limit = 5) {
     take: limit,
     include: {
       assignments: {
-        include: { role: true },
+        include: { person: true, role: true },
       },
     },
   });
@@ -48,7 +50,7 @@ export async function getSchedulesByDateRange(from: Date, to: Date) {
     orderBy: { startAt: "asc" },
     include: {
       assignments: {
-        include: { role: true },
+        include: { person: true, role: true },
       },
     },
   });

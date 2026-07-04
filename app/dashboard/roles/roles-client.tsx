@@ -63,7 +63,11 @@ export function RolesClient({ roles }: { roles: Role[] }) {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Role Pelayanan</h1>
+          <p className="text-muted-foreground">Kelola peran pelayanan</p>
+        </div>
         <Button onClick={openCreate}>
           <Plus className="mr-2 h-4 w-4" /> Tambah Role
         </Button>

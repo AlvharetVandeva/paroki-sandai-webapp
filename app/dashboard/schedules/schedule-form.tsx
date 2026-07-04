@@ -13,7 +13,8 @@ import Link from "next/link";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 type Role = { id: number; name: string };
-type Assignment = { roleId: number; personName: string };
+type Person = { id: number; fullName: string; role: { id: number; name: string } | null };
+type Assignment = { roleId: number; personId: number | null };
 
 export interface ScheduleFormProps {
   initialData?: {
@@ -26,9 +27,10 @@ export interface ScheduleFormProps {
     assignments: Assignment[];
   };
   roles: Role[];
+  persons: Person[];
 }
 
-export function ScheduleForm({ initialData, roles }: ScheduleFormProps) {
+export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps) {
   const router = useRouter();
   
   const [title, setTitle] = useState(initialData?.title || "");
@@ -40,21 +42,19 @@ export function ScheduleForm({ initialData, roles }: ScheduleFormProps) {
   );
   const [location, setLocation] = useState(initialData?.location || "");
   const [description, setDescription] = useState(initialData?.description || "");
-  const [assignments, setAssignments] = useState<Assignment[]>(
-    initialData?.assignments.map((a) => ({ roleId: a.roleId, personName: a.personName ?? "" })) || []
-  );
+  const [assignments, setAssignments] = useState<Assignment[]>(initialData?.assignments || []);
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function addAssignment() {
-    setAssignments([...assignments, { roleId: 0, personName: "" }]);
+    setAssignments([...assignments, { roleId: 0, personId: null }]);
   }
 
-  function updateAssignment(index: number, field: "roleId" | "personName", value: string) {
+  function updateAssignment(index: number, field: "roleId" | "personId", value: string) {
     const updated = [...assignments];
-    updated[index] = {
-      ...updated[index],
-      [field]: field === "roleId" ? Number(value) : value,
+    updated[index] = { 
+      ...updated[index], 
+      [field]: field === "roleId" ? Number(value) : value ? Number(value) : null 
     };
     setAssignments(updated);
   }
@@ -62,6 +62,8 @@ export function ScheduleForm({ initialData, roles }: ScheduleFormProps) {
   function removeAssignment(index: number) {
     setAssignments(assignments.filter((_, i) => i !== index));
   }
+
+  const personsByRole = (roleId: number) => persons.filter((p) => p.role?.id === roleId);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -178,11 +180,21 @@ export function ScheduleForm({ initialData, roles }: ScheduleFormProps) {
                 </div>
                 <div className="flex-1 space-y-2 w-full">
                   <Label className="text-sm font-medium">Nama Petugas</Label>
-                  <Input
-                    placeholder="Ketik nama petugas..."
-                    value={a.personName}
-                    onChange={(e) => updateAssignment(i, "personName", e.target.value)}
-                  />
+                  <Select 
+                    value={a.personId?.toString() ?? ""} 
+                    onValueChange={(v) => updateAssignment(i, "personId", v ?? "")}
+                    disabled={!a.roleId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={a.roleId ? "Pilih petugas (opsional)" : "Pilih pelayanan dulu"}>
+                        {persons.find((p) => p.id === a.personId)?.fullName}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">— Belum Ditentukan —</SelectItem>
+                      {personsByRole(a.roleId).map((p) => <SelectItem key={p.id} value={p.id.toString()}>{p.fullName}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="button" variant="destructive" size="icon" onClick={() => removeAssignment(i)} className="shrink-0 w-full md:w-10">
                   <X className="h-4 w-4" />

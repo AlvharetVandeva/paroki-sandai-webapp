@@ -36,6 +36,7 @@ const NAV_ITEMS = [
   { label: "Petugas", href: "/dashboard/persons", icon: Users },
   { label: "Kegiatan", href: "/dashboard/events", icon: PartyPopper },
   { label: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone },
+  { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 

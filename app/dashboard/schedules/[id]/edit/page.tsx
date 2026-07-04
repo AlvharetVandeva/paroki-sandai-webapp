@@ -1,6 +1,7 @@
 import { ScheduleForm } from "../../schedule-form";
 import { getScheduleById } from "@/services/schedule.service";
 import { getAllRoles } from "@/services/service-role.service";
+import { getAllPersons } from "@/services/person.service";
 import { auth } from "@/auth";
 import { hasPermission } from "@/lib/rbac";
 import { redirect, notFound } from "next/navigation";
@@ -19,9 +20,10 @@ export default async function EditSchedulePage(props: { params: Promise<{ id: st
   const id = parseInt(params.id, 10);
   if (isNaN(id)) return notFound();
 
-  const [schedule, roles] = await Promise.all([
+  const [schedule, roles, persons] = await Promise.all([
     getScheduleById(id),
     getAllRoles(),
+    getAllPersons(),
   ]);
 
   if (!schedule) return notFound();
@@ -29,17 +31,18 @@ export default async function EditSchedulePage(props: { params: Promise<{ id: st
   // Transform schedule assignments to match the form props
   const formattedSchedule = {
     ...schedule,
-    assignments: schedule.assignments.map((a) => ({
+    assignments: schedule.assignments.map(a => ({
       roleId: a.roleId,
-      personName: (a as any).personName ?? "",
-    })),
+      personId: a.personId,
+    }))
   };
 
   return (
     <div className="space-y-6">
-      <ScheduleForm
-        initialData={formattedSchedule}
-        roles={roles}
+      <ScheduleForm 
+        initialData={formattedSchedule} 
+        roles={roles} 
+        persons={persons} 
       />
     </div>
   );

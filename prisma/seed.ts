@@ -238,12 +238,12 @@ async function main() {
   // ── 7. Schedule Assignments ──────────────────────────────────────────────────
   await prisma.scheduleAssignment.createMany({
     data: [
-      { scheduleId: sundayMass.id, personName: persons[0].fullName, roleId: serviceRoles[0].id },
-      { scheduleId: sundayMass.id, personName: persons[1].fullName, roleId: serviceRoles[1].id },
-      { scheduleId: sundayMass.id, personName: persons[2].fullName, roleId: serviceRoles[2].id },
-      { scheduleId: sundayMass.id, personName: persons[4].fullName, roleId: serviceRoles[3].id },
-      { scheduleId: baptism.id,    personName: persons[0].fullName, roleId: serviceRoles[0].id },
-      { scheduleId: baptism.id,    personName: persons[3].fullName, roleId: serviceRoles[2].id },
+      { scheduleId: sundayMass.id, personId: persons[0].id, roleId: serviceRoles[0].id },
+      { scheduleId: sundayMass.id, personId: persons[1].id, roleId: serviceRoles[1].id },
+      { scheduleId: sundayMass.id, personId: persons[2].id, roleId: serviceRoles[2].id },
+      { scheduleId: sundayMass.id, personId: persons[4].id, roleId: serviceRoles[3].id },
+      { scheduleId: baptism.id,    personId: persons[0].id, roleId: serviceRoles[0].id },
+      { scheduleId: baptism.id,    personId: persons[3].id, roleId: serviceRoles[2].id },
     ],
     skipDuplicates: true,
   });

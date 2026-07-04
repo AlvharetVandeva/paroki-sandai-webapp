@@ -21,7 +21,7 @@ export async function createSchedule(data: ScheduleInput) {
       location: parsed.location ?? "Gereja Paroki",
       description: parsed.description,
       assignments: parsed.assignments && parsed.assignments.length > 0
-        ? { create: parsed.assignments.map((a) => ({ roleId: a.roleId, personName: a.personName ?? null })) }
+        ? { create: parsed.assignments.map((a) => ({ roleId: a.roleId, personId: a.personId ?? undefined })) }
         : undefined,
     },
   });
@@ -38,7 +38,7 @@ export async function updateSchedule(
     endAt?: Date;
     location?: string;
     description?: string;
-    assignments?: { roleId: number; personName?: string | null }[];
+    assignments?: { roleId: number; personId?: number | null }[];
   },
 ) {
   if (data.assignments) {
@@ -48,7 +48,7 @@ export async function updateSchedule(
         data: data.assignments.map((a) => ({
           scheduleId: id,
           roleId: a.roleId,
-          personName: a.personName ?? null,
+          personId: a.personId ?? undefined,
         })),
       });
     }
