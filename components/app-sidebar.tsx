@@ -39,13 +39,21 @@ const NAV_ITEMS = [
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 
+import { hasPermission } from "@/lib/rbac";
+
 const RBAC_ITEMS = [
-  { label: "Manajemen User", href: "/dashboard/users", icon: UserCog },
-  { label: "Roles", href: "/dashboard/rbac/roles", icon: Tags },
-  { label: "Permissions", href: "/dashboard/rbac/permissions", icon: ShieldAlert },
+  { label: "Manajemen User", href: "/dashboard/users", icon: UserCog, resource: "users" },
+  { label: "Roles", href: "/dashboard/rbac/roles", icon: Tags, resource: "rbac" },
+  { label: "Permissions", href: "/dashboard/rbac/permissions", icon: ShieldAlert, resource: "rbac" },
 ];
 
-export default function AppSidebar() {
+export default function AppSidebar({
+  userRoles = [],
+  userPermissions = [],
+}: {
+  userRoles?: string[];
+  userPermissions?: string[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -95,29 +103,32 @@ export default function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Administrator</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {RBAC_ITEMS.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      render={<Link href={item.href} />}
-                      tooltip={item.label}
-                    >
-                      <Icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Tampilkan grup Administrator HANYA jika user memiliki salah satu akses di bawah ini */}
+        {(hasPermission(userPermissions, "users", "read") || hasPermission(userPermissions, "rbac", "read")) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administrator</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {RBAC_ITEMS.filter((item) => hasPermission(userPermissions, item.resource, "read")).map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        render={<Link href={item.href} />}
+                        tooltip={item.label}
+                      >
+                        <Icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

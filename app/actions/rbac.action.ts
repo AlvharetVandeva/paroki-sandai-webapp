@@ -6,15 +6,20 @@ import { createRoleSchema, updateRoleSchema, assignUserRoleSchema, createPermiss
 import { auth } from "@/auth";
 import bcrypt from "bcryptjs";
 
-async function requireSuperadmin() {
+import { hasPermission } from "@/lib/rbac";
+
+async function requirePermission(resource: string, action: string) {
   const session = await auth();
   if (!session) throw new Error("Unauthorized");
-  // Assuming Superadmin check will be added here based on role later.
-  // For now, only authenticated users can perform this.
+  
+  const userPermissions = session.user?.permissions || [];
+  if (!hasPermission(userPermissions, resource, action)) {
+    throw new Error(`Forbidden: Membutuhkan permission '${action} ${resource}'`);
+  }
 }
 
 export async function createRole(formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "create");
   
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
@@ -50,7 +55,7 @@ export async function createRole(formData: FormData) {
 }
 
 export async function updateRole(id: number, formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "update");
 
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
@@ -91,7 +96,7 @@ export async function updateRole(id: number, formData: FormData) {
 }
 
 export async function deleteRole(id: number) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "delete");
 
   try {
     await prisma.role.delete({
@@ -105,7 +110,7 @@ export async function deleteRole(id: number) {
 }
 
 export async function assignUserRoles(formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("users", "update");
   
   const userId = formData.get("userId") as string;
   const roleIds = formData.getAll("roles").map(r => parseInt(r as string));
@@ -141,7 +146,7 @@ export async function assignUserRoles(formData: FormData) {
 }
 
 export async function createPermission(formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "create");
   
   const action = formData.get("action") as string;
   const resource = formData.get("resource") as string;
@@ -176,7 +181,7 @@ export async function createPermission(formData: FormData) {
 }
 
 export async function updatePermission(id: number, formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "update");
 
   const action = formData.get("action") as string;
   const resource = formData.get("resource") as string;
@@ -212,7 +217,7 @@ export async function updatePermission(id: number, formData: FormData) {
 }
 
 export async function deletePermission(id: number) {
-  await requireSuperadmin();
+  await requirePermission("rbac", "delete");
 
   try {
     await prisma.permission.delete({
@@ -226,7 +231,7 @@ export async function deletePermission(id: number) {
 }
 
 export async function createUser(formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("users", "create");
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -259,7 +264,7 @@ export async function createUser(formData: FormData) {
 }
 
 export async function updateUser(id: string, formData: FormData) {
-  await requireSuperadmin();
+  await requirePermission("users", "update");
 
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -296,7 +301,7 @@ export async function updateUser(id: string, formData: FormData) {
 }
 
 export async function deleteUser(id: string) {
-  await requireSuperadmin();
+  await requirePermission("users", "delete");
 
   try {
     await prisma.user.delete({

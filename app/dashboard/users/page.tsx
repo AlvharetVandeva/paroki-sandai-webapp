@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import AssignRoleDialog from "./assign-role-dialog";
 import UserFormDialog from "./user-form-dialog";
 import DeleteUserDialog from "./delete-user-dialog";
+import { hasPermission } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 
 export const metadata = {
@@ -12,9 +14,13 @@ export const metadata = {
 };
 
 export default async function UsersPage() {
+  const session = await auth();
+  if (!session || !hasPermission(session.user.permissions || [], "users", "read")) {
+    redirect("/dashboard");
+  }
+
   const users = await getUsersWithRoles();
   const roles = await getRoles();
-  const session = await auth();
   const currentUserId = session?.user?.id;
 
   return (

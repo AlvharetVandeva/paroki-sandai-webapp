@@ -4,12 +4,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import RoleFormDialog from "./role-form-dialog";
 import DeleteRoleDialog from "./delete-role-dialog";
+import { auth } from "@/auth";
+import { hasPermission } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Roles | Paroki Sandai",
 };
 
 export default async function RolesPage() {
+  const session = await auth();
+  if (!session || !hasPermission(session.user.permissions || [], "rbac", "read")) {
+    redirect("/dashboard");
+  }
+
   const roles = await getRoles();
   const permissions = await getPermissions();
 

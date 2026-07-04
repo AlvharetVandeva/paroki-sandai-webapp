@@ -3,12 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import PermissionFormDialog from "./permission-form-dialog";
 import DeletePermissionDialog from "./delete-permission-dialog";
+import { auth } from "@/auth";
+import { hasPermission } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Permissions | Paroki Sandai",
 };
 
 export default async function PermissionsPage() {
+  const session = await auth();
+  if (!session || !hasPermission(session.user.permissions || [], "rbac", "read")) {
+    redirect("/dashboard");
+  }
+
   const permissions = await getPermissions();
 
   // Group permissions by resource
