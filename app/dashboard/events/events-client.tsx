@@ -12,7 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 
 type Event = {
   id: number; title: string; description: string | null; date: Date;
@@ -47,14 +47,14 @@ export function EventsClient({ events }: { events: Event[] }) {
               <TableHead>Judul</TableHead>
               <TableHead>Tanggal</TableHead>
               <TableHead>Lokasi</TableHead>
-              <TableHead>Deskripsi</TableHead>
+              
               <TableHead className="w-[100px]">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {events.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Belum ada kegiatan.</TableCell>
+                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">Belum ada kegiatan.</TableCell>
               </TableRow>
             )}
             {events.map((ev) => (
@@ -62,12 +62,10 @@ export function EventsClient({ events }: { events: Event[] }) {
                 <TableCell className="font-medium">{ev.title}</TableCell>
                 <TableCell>{new Date(ev.date).toLocaleDateString("id-ID")}</TableCell>
                 <TableCell>{ev.location ?? "—"}</TableCell>
-                <TableCell className="text-muted-foreground max-w-xs truncate">{ev.description ?? "—"}</TableCell>
+                
                 <TableCell>
                   <div className="flex gap-1">
-                    <Link href={`/dashboard/events/${ev.id}/edit`}>
-                      <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
-                    </Link>
+                    <Button variant="ghost" size="icon" render={<Link href={`/dashboard/events/${ev.id}`} />} title="Detail" nativeButton={false}><Eye className="h-4 w-4" /></Button><Button variant="ghost" size="icon" render={<Link href={`/dashboard/events/${ev.id}/edit`} />} title="Edit" nativeButton={false}><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => setDeleteId(ev.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -93,3 +91,5 @@ export function EventsClient({ events }: { events: Event[] }) {
     </div>
   );
 }
+
+
