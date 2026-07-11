@@ -29,8 +29,12 @@ export async function getScheduleById(id: number) {
 }
 
 export async function getUpcomingSchedules(limit = 5) {
+  // Get start of today so schedules for today are still shown
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   return prisma.schedule.findMany({
-    where: { startAt: { gte: new Date() } },
+    where: { startAt: { gte: today } },
     orderBy: { startAt: "asc" },
     take: limit,
     include: {

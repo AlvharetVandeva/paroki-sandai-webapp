@@ -1,3 +1,4 @@
+import { Card, Badge } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -76,46 +77,45 @@ export function SchedulePreviewSection({ schedules }: { schedules: UpcomingSched
     <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="mb-3 inline-flex w-fit rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">Jadwal Pelayanan</span>
-          <h2 className="text-3xl font-bold text-slate-900">Jadwal misa dan pelayanan terdekat</h2>
-          <p className="mt-2 text-slate-600">Ringkasan kegiatan pelayanan yang akan datang.</p>
+          <Badge color="info" className="mb-3 w-fit">Jadwal Pelayanan</Badge>
+          <h2 className="text-3xl font-bold text-slate-900">Kalender Pelayanan</h2>
         </div>
-        <Link className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 hover:bg-slate-100" href="/jadwal">
-          Lihat Semua Jadwal
+        <Link className="text-sm font-medium text-blue-600 hover:underline" href="/jadwal">
+          Lihat Semua
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {schedules.length === 0 ? (
-          <p className="p-6 text-slate-600">Belum ada jadwal pelayanan mendatang.</p>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {schedules.map((schedule) => (
-              <article key={schedule.id} className="grid gap-4 p-6 md:grid-cols-[220px_1fr]">
-                <div>
-                  <p className="font-semibold text-blue-900">{formatDate(schedule.startAt)}</p>
-                  <p className="text-sm text-slate-600">{formatTimeRange(schedule.startAt, schedule.endAt)}</p>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">{schedule.title}</h3>
-                  <p className="mt-1 text-slate-600">{schedule.location}</p>
-                  {schedule.assignments.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {schedule.assignments.slice(0, 4).map((assignment) => (
-                        <span
-                          key={`${schedule.id}-${assignment.role.name}-${assignment.person?.fullName ?? "kosong"}`}
-                          className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
-                        >
-                          {assignment.role.name}: {assignment.person?.fullName ?? "Belum ditentukan"}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+      <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <table className="w-full text-sm text-left bg-white">
+          <thead className="bg-slate-50 text-slate-700">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Hari/Tanggal</th>
+              <th className="px-4 py-3 font-semibold">Kegiatan</th>
+              <th className="px-4 py-3 font-semibold">Pukul</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200">
+            {schedules.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-6 text-center text-slate-500">Belum ada jadwal pelayanan mendatang.</td>
+              </tr>
+            ) : (
+              schedules.map((s, i) => (
+                <tr key={s.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium text-slate-900">
+                    {new Date(s.startAt).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" })}
+                  </td>
+                  <td className="px-4 py-3">{s.title}</td>
+                  <td className="px-4 py-3">
+                    {new Date(s.startAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                    - 
+                    {new Date(s.endAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </section>
   );
@@ -127,31 +127,32 @@ export function EventsSection({ events }: { events: UpcomingEvent[] }) {
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="mb-3 inline-flex w-fit rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Kegiatan</span>
+            <Badge color="success" className="mb-3 w-fit">Kegiatan</Badge>
             <h2 className="text-3xl font-bold text-slate-900">Kegiatan Mendatang</h2>
-            <p className="mt-2 text-slate-600">Agenda paroki yang dapat diikuti umat.</p>
           </div>
-          <Link className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 hover:bg-slate-100" href="/kegiatan">
-            Lihat Semua Kegiatan
+          <Link className="text-sm font-medium text-blue-600 hover:underline" href="/kegiatan">
+            Lihat Semua
           </Link>
         </div>
 
         {events.length === 0 ? (
-          <p className="rounded-2xl border border-slate-200 p-6 text-slate-600">Belum ada kegiatan mendatang.</p>
+          <p className="rounded-2xl border border-slate-200 p-6 text-slate-600 text-center">Belum ada kegiatan mendatang.</p>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
-              <article key={event.id} className="h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p className="text-sm font-semibold text-blue-700">{formatDate(event.date)}</p>
-                <h3 className="mt-2 text-xl font-bold text-slate-900">{event.title}</h3>
-                {event.location && <p className="mt-2 text-sm text-slate-600">{event.location}</p>}
-                {event.description && (
-                  <div
-                    className="prose prose-slate mt-4 max-w-none text-slate-700"
-                    dangerouslySetInnerHTML={{ __html: event.description }}
-                  />
-                )}
-              </article>
+              <Card key={event.id} className="shadow-none border-slate-200">
+                <div className="flex flex-col h-full">
+                  <Badge color="success" className="mb-2 w-fit">
+                    {formatDate(event.date)}
+                  </Badge>
+                  <h3 className="text-lg font-bold text-slate-900 leading-tight">{event.title}</h3>
+                  {event.description && (
+                    <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+                      {htmlExcerpt(event.description, 100)}
+                    </p>
+                  )}
+                </div>
+              </Card>
             ))}
           </div>
         )}
@@ -162,34 +163,36 @@ export function EventsSection({ events }: { events: UpcomingEvent[] }) {
 
 export function AnnouncementsSection({ announcements }: { announcements: RecentAnnouncement[] }) {
   return (
-    <section className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1fr_420px]">
-      <div>
-        <span className="mb-3 inline-flex w-fit rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">Pengumuman</span>
-        <h2 className="text-3xl font-bold text-slate-900">Pengumuman singkat</h2>
-        <p className="mt-2 text-slate-600">Informasi terbaru dari sekretariat dan pelayanan paroki.</p>
-        <Link className="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 hover:bg-slate-100" href="/pengumuman">
-          Lihat Arsip Pengumuman
+    <section className="mx-auto max-w-6xl px-6 py-16">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <Badge color="warning" className="mb-3 w-fit">Pengumuman</Badge>
+          <h2 className="text-3xl font-bold text-slate-900">Pengumuman Singkat</h2>
+        </div>
+        <Link className="text-sm font-medium text-blue-600 hover:underline" href="/pengumuman">
+          Lihat Arsip
         </Link>
       </div>
 
-      <div className="space-y-4">
-        {announcements.length === 0 ? (
-          <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600">Belum ada pengumuman.</p>
-        ) : (
-          announcements.map((announcement) => (
-            <article key={announcement.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {formatDate(announcement.createdAt)}
-              </p>
-              <h3 className="mt-2 text-lg font-bold text-slate-900">{announcement.title}</h3>
-              <div
-                className="prose prose-slate mt-3 max-w-none text-slate-700"
-                dangerouslySetInnerHTML={{ __html: announcement.content }}
-              />
-            </article>
-          ))
-        )}
-      </div>
+      {announcements.length === 0 ? (
+        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600 text-center">Belum ada pengumuman.</p>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {announcements.map((announcement) => (
+            <Card key={announcement.id} className="shadow-none border-slate-200">
+              <div className="flex flex-col h-full">
+                <p className="text-xs font-semibold text-slate-500 mb-2">
+                  {new Date(announcement.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                </p>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">{announcement.title}</h3>
+                <p className="mt-2 text-sm text-slate-600 line-clamp-3">
+                  {htmlExcerpt(announcement.content, 90)}
+                </p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
