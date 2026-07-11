@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NewsSchema, NewsInput } from "@/schemas/news.schema";
+import { NewsSchema } from "@/schemas/news.schema";
+import type { NewsInput } from "@/schemas/news.schema";
 import { createNews, updateNews } from "@/actions/news.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,12 +50,12 @@ export function NewsForm({ initialData }: NewsFormProps) {
     watch,
     formState: { errors },
   } = useForm<NewsInput>({
-    resolver: zodResolver(NewsSchema),
+    resolver: zodResolver(NewsSchema) as any,
     defaultValues: {
       title: initialData?.title || "",
       content: initialData?.content || "",
       coverImage: initialData?.coverImage || "",
-      publishedAt: initialData?.publishedAt ? new Date(initialData.publishedAt) : undefined,
+      publishedAt: initialData?.publishedAt ? new Date(initialData.publishedAt) : null,
     },
   });
 

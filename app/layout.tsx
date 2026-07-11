@@ -24,10 +24,10 @@ export default function RootLayout({
   return (
     <html lang="id" className={cn("font-sans", geist.variable)}>
       <body
-        className={`${geist.variable} ${geistMono.variable} min-h-screen antialiased`}
+        className={`${geist.variable} ${geistMono.variable} min-h-screen flex flex-col antialiased`}
       >
         <TooltipProvider>
-          {children}
+          <main className="flex-grow">{children}</main>
         </TooltipProvider>
       </body>
     </html>
