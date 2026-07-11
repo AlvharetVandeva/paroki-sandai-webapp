@@ -103,7 +103,7 @@ export function SchedulePreviewSection({ schedules }: { schedules: UpcomingSched
               schedules.map((s, i) => (
                 <tr key={s.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-900">
-                    {new Date(s.startAt).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "short" })}
+                    {new Date(s.startAt).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                   </td>
                   <td className="px-4 py-3">{s.title}</td>
                   <td className="px-4 py-3">
