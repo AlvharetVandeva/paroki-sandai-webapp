@@ -184,15 +184,15 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 5 — Public Layout dan Home Page
 
-- [ ] Buat public navbar menggunakan Flowbite.
-- [ ] Buat hero carousel/slider gambar.
-- [ ] Buat section jadwal misa ringkas.
-- [ ] Buat section cuplikan kalender pelayanan.
-- [ ] Buat section 5 kegiatan mendatang.
-- [ ] Buat section pengumuman singkat.
-- [ ] Buat section profil/sambutan singkat.
-- [ ] Buat footer dengan kontak, sosial media, dan peta.
-- [ ] Pastikan home page responsif di mobile, tablet, dan desktop.
+- [x] Buat public navbar menggunakan Flowbite.
+- [x] Buat hero carousel/slider gambar.
+- [x] Buat section jadwal misa ringkas.
+- [x] Buat section cuplikan kalender pelayanan.
+- [x] Buat section 5 kegiatan mendatang.
+- [x] Buat section pengumuman singkat.
+- [x] Buat section profil/sambutan singkat.
+- [x] Buat footer dengan kontak, sosial media, dan peta.
+- [x] Pastikan home page responsif di mobile, tablet, dan desktop.
 
 ### Phase 6 — Public Pages
 
