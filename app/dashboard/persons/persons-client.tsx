@@ -249,7 +249,7 @@ export function PersonsClient({ persons, roles }: { persons: Person[]; roles: Ro
               </div>
               <div className="space-y-2">
                 <Label>Peran (Opsional)</Label>
-                <Select value={roleId} onValueChange={setRoleId}>
+                <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
                   <SelectTrigger><SelectValue placeholder="Pilih peran..." /></SelectTrigger>
                   <SelectContent>
                     {roles.map((r) => (

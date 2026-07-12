@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export type CalendarSchedule  = {
+export type CalendarSchedule = {
   id: number;
   title: string;
   startAt: Date | string;
@@ -22,8 +22,17 @@ export type CalendarSchedule  = {
   }[];
 };
 
+export type CalendarEvent = {
+  id: number;
+  title: string;
+  description: string | null;
+  date: Date | string;
+  location: string | null;
+};
+
 interface CalendarSectionProps {
   schedules: CalendarSchedule[];
+  events: CalendarEvent[];
 }
 
 const monthNames = [
@@ -46,7 +55,7 @@ function dateKey(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
-export function CalendarSection({ schedules }: CalendarSectionProps) {
+export function CalendarSection({ schedules, events }: CalendarSectionProps) {
   const today = useMemo(() => startOfDay(new Date()), []);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -58,22 +67,29 @@ export function CalendarSection({ schedules }: CalendarSectionProps) {
   // Day of week 0 (Sun) - 6 (Sat). Grid starts Sun (Minggu).
   const firstWeekday = firstDay.getDay();
 
-  const schedulesByDate = useMemo(() => {
-    const map = new Map<string, CalendarSchedule[]>();
+  // Gabung jadwal + kegiatan ke Map<string, Array<{type, data}>>
+  const itemsByDate = useMemo(() => {
+    const map = new Map<string, { schedules: CalendarSchedule[]; events: CalendarEvent[] }>();
+    const add = (key: string, type: "schedules" | "events", data: CalendarSchedule | CalendarEvent) => {
+      const entry = map.get(key) ?? { schedules: [], events: [] };
+      (entry[type] as Array<CalendarSchedule | CalendarEvent>).push(data);
+      map.set(key, entry);
+    };
     for (const s of schedules) {
       const d = startOfDay(new Date(s.startAt));
-      const key = dateKey(d);
-      const arr = map.get(key) ?? [];
-      arr.push(s);
-      map.set(key, arr);
+      add(dateKey(d), "schedules", s);
+    }
+    for (const e of events) {
+      const d = startOfDay(new Date(e.date));
+      add(dateKey(d), "events", e);
     }
     return map;
-  }, [schedules]);
+  }, [schedules, events]);
 
-  const selectedSchedules = useMemo(() => {
-    if (!selectedDate) return [];
-    return schedulesByDate.get(dateKey(selectedDate)) ?? [];
-  }, [selectedDate, schedulesByDate]);
+  const selectedItems = useMemo(() => {
+    if (!selectedDate) return { schedules: [], events: [] };
+    return itemsByDate.get(dateKey(selectedDate)) ?? { schedules: [], events: [] };
+  }, [selectedDate, itemsByDate]);
 
   // Build grid cells: leading empty cells + all days of month
   const cells: (Date | null)[] = [];
@@ -92,8 +108,16 @@ export function CalendarSection({ schedules }: CalendarSectionProps) {
               {monthNames[month]} {year}
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Klik tanggal yang memiliki jadwal untuk melihat detail.
+              Klik tanggal untuk melihat jadwal pelayanan & kegiatan paroki.
             </p>
+            <div className="mt-2 flex flex-wrap gap-3 text-xs">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-blue-500" /> Jadwal Pelayanan
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" /> Kegiatan
+              </span>
+            </div>
           </div>
         </div>
 
@@ -114,20 +138,33 @@ export function CalendarSection({ schedules }: CalendarSectionProps) {
                 return <div key={idx} className="min-h-[88px] border-b border-r border-slate-100 bg-slate-50/50" />;
               }
               const key = dateKey(cell);
-              const items = schedulesByDate.get(key) ?? [];
-              const hasSchedules = items.length > 0;
+              const dayItems = itemsByDate.get(key);
+              const schedulesCount = dayItems?.schedules.length ?? 0;
+              const eventsCount = dayItems?.events.length ?? 0;
+              const totalCount = schedulesCount + eventsCount;
+              const hasItems = totalCount > 0;
               const isToday = key === dateKey(today);
-              const isPast = cell < today;
+
+              // Gabungkan judul untuk preview cell
+              const titles: { type: "schedule" | "event"; title: string; id: number }[] = [];
+              dayItems?.schedules.forEach((s) => titles.push({ type: "schedule", title: s.title, id: s.id }));
+              dayItems?.events.forEach((e) => titles.push({ type: "event", title: e.title, id: e.id }));
 
               return (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => hasSchedules && setSelectedDate(cell)}
-                  disabled={!hasSchedules}
+                  onClick={() => hasItems && setSelectedDate(cell)}
+                  disabled={!hasItems}
                   className={`min-h-[88px] border-b border-r border-slate-100 p-2 text-left transition-colors last:border-r-0 ${
-                    hasSchedules ? "bg-blue-50 hover:bg-blue-100 cursor-pointer" : "bg-white cursor-default"
-                  } ${isPast && !hasSchedules ? "text-slate-400" : "text-slate-900"}`}
+                    hasItems
+                      ? schedulesCount > 0 && eventsCount > 0
+                        ? "bg-gradient-to-br from-blue-50 to-emerald-50 hover:from-blue-100 hover:to-emerald-100 cursor-pointer"
+                        : schedulesCount > 0
+                        ? "bg-blue-50 hover:bg-blue-100 cursor-pointer"
+                        : "bg-emerald-50 hover:bg-emerald-100 cursor-pointer"
+                      : "bg-white cursor-default"
+                  }`}
                 >
                   <div className="flex items-start justify-between">
                     <span
@@ -137,25 +174,36 @@ export function CalendarSection({ schedules }: CalendarSectionProps) {
                     >
                       {cell.getDate()}
                     </span>
-                    {hasSchedules && (
-                      <Badge color="info" size="xs" className="shrink-0">
-                        {items.length}
-                      </Badge>
+                    {hasItems && (
+                      <div className="flex gap-1">
+                        {schedulesCount > 0 && (
+                          <Badge color="info" size="xs" className="shrink-0">
+                            {schedulesCount}
+                          </Badge>
+                        )}
+                        {eventsCount > 0 && (
+                          <Badge color="success" size="xs" className="shrink-0">
+                            {eventsCount}
+                          </Badge>
+                        )}
+                      </div>
                     )}
                   </div>
-                  {hasSchedules && (
+                  {hasItems && (
                     <div className="mt-1 space-y-0.5">
-                      {items.slice(0, 2).map((s) => (
+                      {titles.slice(0, 2).map((t) => (
                         <p
-                          key={s.id}
-                          className="truncate text-[11px] font-medium text-slate-700"
-                          title={s.title}
+                          key={`${t.type}-${t.id}`}
+                          className={`truncate text-[11px] font-medium ${
+                            t.type === "event" ? "text-emerald-700" : "text-slate-700"
+                          }`}
+                          title={t.title}
                         >
-                          {s.title}
+                          {t.title}
                         </p>
                       ))}
-                      {items.length > 2 && (
-                        <p className="text-[10px] text-slate-500">+{items.length - 2} lainnya</p>
+                      {titles.length > 2 && (
+                        <p className="text-[10px] text-slate-500">+{titles.length - 2} lainnya</p>
                       )}
                     </div>
                   )}
@@ -168,44 +216,85 @@ export function CalendarSection({ schedules }: CalendarSectionProps) {
 
       {/* Detail modal (menggunakan shadcn/ui Dialog untuk reliabilitas penuh) */}
       <Dialog open={selectedDate !== null} onOpenChange={(open) => { if (!open) setSelectedDate(null); }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedDate &&
-                `Jadwal ${selectedDate.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`}
+                `Jadwal & Kegiatan ${selectedDate.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`}
             </DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            {selectedSchedules.length === 0 ? (
-              <p className="text-slate-600">Tidak ada jadwal.</p>
-            ) : (
-              <ul className="space-y-4">
-                {selectedSchedules.map((s) => {
-                  const startTime = new Date(s.startAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-                  const endTime = new Date(s.endAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-                  return (
-                    <li key={s.id} className="rounded-lg border border-slate-200 p-4">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <h3 className="text-base font-bold text-slate-900">{s.title}</h3>
-                          <p className="text-sm text-slate-600">{s.location}</p>
+          <div className="py-4 space-y-6">
+            {/* Jadwal Pelayanan */}
+            <div>
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-blue-500" />
+                Jadwal Pelayanan
+              </h3>
+              {selectedItems.schedules.length === 0 ? (
+                <p className="text-sm text-slate-500 italic">Tidak ada jadwal pelayanan pada tanggal ini.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {selectedItems.schedules.map((s) => {
+                    const startTime = new Date(s.startAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+                    const endTime = new Date(s.endAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+                    return (
+                      <li key={s.id} className="rounded-lg border border-slate-200 p-3">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-900">{s.title}</h4>
+                            <p className="text-xs text-slate-600">{s.location}</p>
+                          </div>
+                          <Badge color="info" size="sm">{startTime} - {endTime}</Badge>
                         </div>
-                        <Badge color="info">{startTime} - {endTime}</Badge>
-                      </div>
-                      {s.assignments.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {s.assignments.map((a) => (
-                            <Badge key={a.id} color="gray">
-                              {a.person ? `${a.person.fullName} → ${a.person.role?.name ?? a.role.name}` : a.role.name}
-                            </Badge>
-                          ))}
+                        {s.assignments.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {s.assignments.map((a) => (
+                              <Badge key={a.id} color="gray" size="sm">
+                                {a.person ? `${a.person.fullName} → ${a.person.role?.name ?? a.role.name}` : a.role.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Kegiatan */}
+            <div>
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-emerald-500" />
+                Kegiatan
+              </h3>
+              {selectedItems.events.length === 0 ? (
+                <p className="text-sm text-slate-500 italic">Tidak ada kegiatan pada tanggal ini.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {selectedItems.events.map((e) => {
+                    const time = new Date(e.date).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+                    return (
+                      <li key={e.id} className="rounded-lg border border-slate-200 p-3">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-900">{e.title}</h4>
+                            {e.location && <p className="text-xs text-slate-600">{e.location}</p>}
+                          </div>
+                          <Badge color="success" size="sm">{time}</Badge>
                         </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+                        {e.description && (
+                          <div
+                            className="prose prose-slate prose-xs mt-2 max-w-none text-xs text-slate-600"
+                            dangerouslySetInnerHTML={{ __html: e.description }}
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
