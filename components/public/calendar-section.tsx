@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge } from "flowbite-react";
+import { MapPin } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ export type CalendarEvent = {
   description: string | null;
   date: Date | string;
   location: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 interface CalendarSectionProps {
@@ -274,6 +277,10 @@ export function CalendarSection({ schedules, events }: CalendarSectionProps) {
                 <ul className="space-y-3">
                   {selectedItems.events.map((e) => {
                     const time = new Date(e.date).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+                    const hasCoords = typeof e.latitude === "number" && typeof e.longitude === "number";
+                    const mapsUrl = hasCoords
+                      ? `https://www.google.com/maps/search/?api=1&query=${e.latitude},${e.longitude}`
+                      : null;
                     return (
                       <li key={e.id} className="rounded-lg border border-slate-200 p-3">
                         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -288,6 +295,19 @@ export function CalendarSection({ schedules, events }: CalendarSectionProps) {
                             className="prose prose-slate prose-xs mt-2 max-w-none text-xs text-slate-600"
                             dangerouslySetInnerHTML={{ __html: e.description }}
                           />
+                        )}
+                        {mapsUrl && (
+                          <div className="mt-3 flex justify-end">
+                            <a
+                              href={mapsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 hover:border-emerald-300"
+                            >
+                              <MapPin className="h-3.5 w-3.5" />
+                              Lihat di Peta
+                            </a>
+                          </div>
                         )}
                       </li>
                     );
