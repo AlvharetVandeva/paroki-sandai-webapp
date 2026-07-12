@@ -30,8 +30,8 @@ export async function getAnnouncementsPage({
   const where = query
     ? {
         OR: [
-          { title: { contains: query, mode: "insensitive" as const } },
-          { content: { contains: query, mode: "insensitive" as const } },
+          { title: { contains: query } },
+          { content: { contains: query } },
         ],
       }
     : undefined;
