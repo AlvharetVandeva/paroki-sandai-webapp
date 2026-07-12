@@ -71,3 +71,27 @@ export async function getScheduleCountThisMonth() {
     },
   });
 }
+
+export async function getSchedulesForMonth(year: number, month: number) {
+  // month is 0-indexed: 0=January, 11=December
+  const startOfMonth = new Date(year, month, 1);
+  const startOfNextMonth = new Date(year, month + 1, 1);
+
+  return prisma.schedule.findMany({
+    where: {
+      startAt: {
+        gte: startOfMonth,
+        lt: startOfNextMonth,
+      },
+    },
+    orderBy: { startAt: "asc" },
+    include: {
+      assignments: {
+        include: {
+          person: { include: { role: true } },
+          role: true,
+        },
+      },
+    },
+  });
+}
