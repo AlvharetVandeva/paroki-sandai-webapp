@@ -205,7 +205,7 @@ Gunakan model relasional sebagai dasar:
 - [ ] Buat halaman daftar/detail kegiatan jika dibutuhkan.
 - [ ] Buat halaman daftar Berita dan baca detail Berita.
 - [ ] Buat halaman daftar dan detail Album Galeri.
-- [ ] Buat halaman publik Sejarah Gereja.
+- [x] Buat halaman publik Sejarah Gereja.
 
 ### Phase 7 — Quality, Testing, dan Verification
 
