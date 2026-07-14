@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 const footerLinks = [
   { href: "/jadwal", label: "Jadwal Pelayanan" },
@@ -63,8 +63,9 @@ export function PublicFooter({ settings }: { settings: Record<string, string> })
           )}
         </div>
       </div>
-      <div className="border-t border-slate-800 px-6 py-5 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} {siteName}. Semua hak dilindungi.
+      <div className="border-t border-slate-800 px-6 py-5 text-center text-sm text-slate-500 space-y-1">
+        <p>© {new Date().getFullYear()} {siteName}. Semua hak dilindungi.</p>
+        <p>Made with ❤️ Mahasiswa KKN UAJY 2026</p>
       </div>
     </footer>
   );
