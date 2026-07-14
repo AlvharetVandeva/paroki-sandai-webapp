@@ -1,11 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -17,14 +16,11 @@ import {
 const navLinks = [
   { href: "/", label: "Beranda" },
   { href: "/jadwal", label: "Jadwal" },
-  // { href: "/profil", label: "Profil" },
-  // { href: "/sakramen", label: "Sakramen" },
   { href: "/pengumuman", label: "Pengumuman" },
   { href: "/kegiatan", label: "Kegiatan" },
   { href: "/berita", label: "Berita" },
   { href: "/galeri", label: "Galeri" },
   { href: "/sejarah", label: "Sejarah" },
-  // { href: "/hubungi", label: "Hubungi" },
 ];
 
 export function PublicNavbar() {
@@ -32,25 +28,35 @@ export function PublicNavbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-sm">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.jpeg" alt="Logo Paroki Sandai" width={40} height={40} className="rounded-full object-cover" />
-            <span className="text-lg font-bold text-blue-900 hidden sm:block">Paroki Sandai</span>
-          </Link>
-        </div>
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Image
+            src="/logo.jpeg"
+            alt="Logo Paroki Sandai"
+            width={40}
+            height={40}
+            className="rounded-full object-cover border border-slate-200"
+          />
+          <span className="text-base font-bold text-blue-900 leading-tight hidden sm:block">
+            Paroki Sandai
+          </span>
+        </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-blue-700 ${
-                  isActive ? "text-blue-700" : "text-slate-600"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
                 }`}
               >
                 {link.label}
@@ -59,20 +65,35 @@ export function PublicNavbar() {
           })}
         </nav>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Hamburger */}
         <div className="flex lg:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger 
-              render={<Button variant="ghost" size="icon" />}
+            <SheetTrigger
+              render={
+                <button
+                  className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  aria-label="Buka menu"
+                />
+              }
             >
               <Menu className="h-6 w-6" />
-              <span className="sr-only">Toggle Menu</span>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle className="text-left text-blue-900">Paroki Sandai</SheetTitle>
+
+            <SheetContent side="right" className="w-[300px] p-0 flex flex-col sm:w-[350px]">
+              <SheetHeader className="px-5 py-5 border-b border-slate-100 text-left">
+                <SheetTitle className="flex items-center gap-2.5">
+                  <Image
+                    src="/logo.jpeg"
+                    alt="Logo Paroki Sandai"
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover border border-slate-200"
+                  />
+                  <span className="text-base font-bold text-blue-900">Paroki Sandai</span>
+                </SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8">
+
+              <nav className="flex flex-col px-3 py-4 gap-1 flex-1 overflow-y-auto">
                 {navLinks.map((link) => {
                   const isActive = pathname === link.href;
                   return (
@@ -80,8 +101,10 @@ export function PublicNavbar() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className={`text-base font-medium transition-colors hover:text-blue-700 ${
-                        isActive ? "text-blue-700" : "text-slate-600"
+                      className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-blue-700"
                       }`}
                     >
                       {link.label}
