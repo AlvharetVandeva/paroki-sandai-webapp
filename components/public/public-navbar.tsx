@@ -16,14 +16,14 @@ import {
 const navLinks = [
   { href: "/", label: "Beranda" },
   { href: "/jadwal", label: "Jadwal" },
-  { href: "/profil", label: "Profil" },
-  { href: "/sakramen", label: "Sakramen" },
+  // { href: "/profil", label: "Profil" },
+  // { href: "/sakramen", label: "Sakramen" },
   { href: "/pengumuman", label: "Pengumuman" },
   { href: "/kegiatan", label: "Kegiatan" },
   { href: "/berita", label: "Berita" },
   { href: "/galeri", label: "Galeri" },
   { href: "/sejarah", label: "Sejarah" },
-  { href: "/hubungi", label: "Hubungi" },
+  // { href: "/hubungi", label: "Hubungi" },
 ];
 
 export function PublicNavbar() {
