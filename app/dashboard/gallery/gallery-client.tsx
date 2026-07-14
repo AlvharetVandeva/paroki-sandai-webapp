@@ -15,12 +15,12 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-type GalleryItem = { 
-  id: number; 
-  title: string; 
+type GalleryItem = {
+  id: number;
+  title: string;
   coverImage: string | null;
-  createdAt: Date; 
-  images: any[];
+  createdAt: Date;
+  _count: { images: number };
 };
 
 export function GalleryClient({ galleries }: { galleries: GalleryItem[] }) {
@@ -76,22 +76,21 @@ export function GalleryClient({ galleries }: { galleries: GalleryItem[] }) {
                   {item.coverImage ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={item.coverImage} alt={item.title} className="w-16 h-12 object-cover rounded-md border bg-muted" />
-                  ) : item.images.length > 0 ? (
-                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={item.images[0].url} alt={item.title} className="w-16 h-12 object-cover rounded-md border bg-muted" />
                   ) : (
                     <div className="w-16 h-12 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">No img</div>
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{item.title}</TableCell>
-                <TableCell>{item.images.length} foto</TableCell>
+                <TableCell>{item._count.images} foto</TableCell>
                 <TableCell className="text-muted-foreground">
                   {new Date(item.createdAt).toLocaleDateString("id-ID")}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" render={<Link href={`/dashboard/gallery/${item.id}/edit`} />} nativeButton={false} title="Edit">
-                      <Pencil className="h-4 w-4" />
+                      
+                        <Pencil className="h-4 w-4" />
+                      
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => setDeleteId(item.id)} title="Hapus">
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -107,14 +106,14 @@ export function GalleryClient({ galleries }: { galleries: GalleryItem[] }) {
       <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Album Galeri</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Album?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus album ini beserta seluruh foto di dalamnya? Tindakan ini tidak dapat dibatalkan.
+              Tindakan ini tidak dapat dibatalkan. Semua foto dalam album ini juga akan dihapus.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
