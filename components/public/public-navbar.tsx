@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useState } from "react";
@@ -34,8 +35,9 @@ export function PublicNavbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-blue-900">Paroki Sandai</span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image src="/logo.jpeg" alt="Logo Paroki Sandai" width={40} height={40} className="rounded-full object-cover" />
+            <span className="text-lg font-bold text-blue-900 hidden sm:block">Paroki Sandai</span>
           </Link>
         </div>
 

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
@@ -74,8 +75,8 @@ export default function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-                PS
+              <div className="flex aspect-square size-8 items-center justify-center rounded-md overflow-hidden">
+                <Image src="/logo.jpeg" alt="Logo Paroki Sandai" width={32} height={32} className="object-cover w-full h-full" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
                 <span className="font-semibold">Paroki Sandai</span>
