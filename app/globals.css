@@ -118,14 +118,15 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+/* Base layer styles — Tailwind v4: gunakan CSS langsung, bukan @apply di @layer */
+* {
+  border-color: var(--border);
+  outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
+}
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+html {
+  font-family: var(--font-sans);
 }

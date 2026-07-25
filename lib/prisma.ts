@@ -7,15 +7,14 @@ const globalForPrisma = globalThis as unknown as {
 
 // Force Next.js Turbopack cache invalidation for History CMS
 
-// Menggunakan konfigurasi object secara langsung untuk menghindari bug parsing URL
-// Menggunakan konfigurasi object secara langsung untuk adapter MariaDB Prisma
+// Konfigurasi adapter MariaDB dari environment variables (.env.local)
 const adapter = new PrismaMariaDb({
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: '',
-  database: 'paroki_sandai',
-  connectionLimit: 10
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
 });
 
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
