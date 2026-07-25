@@ -196,15 +196,15 @@ Gunakan model relasional sebagai dasar:
 
 ### Phase 6 — Public Pages
 
-- [ ] Buat halaman kalender/jadwal pelayanan lengkap.
-- [ ] Buat halaman detail jadwal bila diperlukan.
-- [ ] Buat halaman profil paroki.
-- [ ] Buat halaman informasi sakramen.
-- [ ] Buat halaman hubungi kami/kontak.
-- [ ] Buat halaman daftar pengumuman.
-- [ ] Buat halaman daftar/detail kegiatan jika dibutuhkan.
-- [ ] Buat halaman daftar Berita dan baca detail Berita.
-- [ ] Buat halaman daftar dan detail Album Galeri.
+- [x] Buat halaman kalender/jadwal pelayanan lengkap.
+- [x] Buat halaman detail jadwal bila diperlukan.
+- [x] Buat halaman profil paroki.
+- [x] Buat halaman informasi sakramen.
+- [x] Buat halaman hubungi kami/kontak.
+- [x] Buat halaman daftar pengumuman.
+- [x] Buat halaman daftar/detail kegiatan jika dibutuhkan.
+- [x] Buat halaman daftar Berita dan baca detail Berita.
+- [x] Buat halaman daftar dan detail Album Galeri.
 - [x] Buat halaman publik Sejarah Gereja.
 
 ### Phase 7 — Quality, Testing, dan Verification
