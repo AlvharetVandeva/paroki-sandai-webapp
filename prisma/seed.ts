@@ -1,16 +1,19 @@
 import { PrismaClient } from "../lib/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 
-// Menggunakan konfigurasi object secara langsung untuk menghindari bug parsing URL
-// Menggunakan konfigurasi object secara langsung untuk adapter MariaDB Prisma
+// Load .env.local untuk akses kredensial database
+dotenv.config({ path: ".env.local" });
+
+// Konfigurasi adapter MariaDB dari environment variables
 const adapter = new PrismaMariaDb({
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: '',
-  database: 'paroki_sandai',
-  connectionLimit: 10
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
 });
 const prisma = new PrismaClient({ adapter });
 
