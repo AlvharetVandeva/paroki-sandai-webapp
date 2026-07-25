@@ -15,6 +15,7 @@ import {
 
 const navLinks = [
   { href: "/", label: "Beranda" },
+  { href: "/profil", label: "Profil Paroki" },
   { href: "/jadwal", label: "Jadwal" },
   { href: "/pengumuman", label: "Pengumuman" },
   { href: "/kegiatan", label: "Kegiatan" },
