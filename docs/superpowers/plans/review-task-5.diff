@@ -1,0 +1,147 @@
+# Review package: f0280bb97a4d47401a60fe25a1bf03ec360c6b1a..HEAD
+
+## Commits
+04d92c2 feat: add Server Actions for OrganizationMember CRUD + profile video
+885635d feat: add Profil Paroki link to public navbar
+ee177b6 feat: add Zod schema for OrganizationMember
+40ceedc feat: add service layer for OrganizationMember queries
+
+## Files changed
+ actions/organization.action.ts      | 57 +++++++++++++++++++++++++++++++++++++
+ components/public/public-navbar.tsx |  1 +
+ schemas/organization.schema.ts      | 23 +++++++++++++++
+ services/organization.service.ts    |  7 +++++
+ 4 files changed, 88 insertions(+)
+
+## Diff
+diff --git a/actions/organization.action.ts b/actions/organization.action.ts
+new file mode 100644
+index 0000000..90c471e
+--- /dev/null
++++ b/actions/organization.action.ts
+@@ -0,0 +1,57 @@
++"use server";
++
++import { revalidatePath } from "next/cache";
++import prisma from "@/lib/prisma";
++import {
++  OrganizationMemberSchema,
++  OrganizationMemberUpdateSchema,
++} from "@/schemas/organization.schema";
++
++export async function createMember(data: Record<string, unknown>) {
++  try {
++    const parsed = OrganizationMemberSchema.parse(data);
++    await prisma.organizationMember.create({ data: parsed });
++    revalidatePath("/dashboard/profil");
++    return { success: true };
++  } catch (error: any) {
++    return { success: false, error: error.message || "Gagal menambah anggota" };
++  }
++}
++
++export async function updateMember(id: number, data: Record<string, unknown>) {
++  try {
++    const parsed = OrganizationMemberUpdateSchema.parse(data);
++    await prisma.organizationMember.update({
++      where: { id },
++      data: parsed,
++    });
++    revalidatePath("/dashboard/profil");
++    return { success: true };
++  } catch (error: any) {
++    return { success: false, error: error.message || "Gagal mengubah anggota" };
++  }
++}
++
++export async function deleteMember(id: number) {
++  try {
++    await prisma.organizationMember.delete({ where: { id } });
++    revalidatePath("/dashboard/profil");
++    return { success: true };
++  } catch (error: any) {
++    return { success: false, error: error.message || "Gagal menghapus anggota" };
++  }
++}
++
++export async function saveProfileVideo(url: string) {
++  try {
++    await prisma.siteSetting.upsert({
++      where: { key: "profileVideoUrl" },
++      update: { value: url },
++      create: { key: "profileVideoUrl", value: url },
++    });
++    revalidatePath("/dashboard/profil");
++    return { success: true };
++  } catch (error: any) {
++    return { success: false, error: error.message || "Gagal menyimpan URL video" };
++  }
++}
+diff --git a/components/public/public-navbar.tsx b/components/public/public-navbar.tsx
+index eccf0bd..dd6e600 100644
+--- a/components/public/public-navbar.tsx
++++ b/components/public/public-navbar.tsx
+@@ -8,20 +8,21 @@ import { useState } from "react";
+ import {
+   Sheet,
+   SheetContent,
+   SheetHeader,
+   SheetTitle,
+   SheetTrigger,
+ } from "@/components/ui/sheet";
+ 
+ const navLinks = [
+   { href: "/", label: "Beranda" },
++  { href: "/profil", label: "Profil Paroki" },
+   { href: "/jadwal", label: "Jadwal" },
+   { href: "/pengumuman", label: "Pengumuman" },
+   { href: "/kegiatan", label: "Kegiatan" },
+   { href: "/berita", label: "Berita" },
+   { href: "/galeri", label: "Galeri" },
+   { href: "/sejarah", label: "Sejarah" },
+ ];
+ 
+ export function PublicNavbar() {
+   const pathname = usePathname();
+diff --git a/schemas/organization.schema.ts b/schemas/organization.schema.ts
+new file mode 100644
+index 0000000..17bb075
+--- /dev/null
++++ b/schemas/organization.schema.ts
+@@ -0,0 +1,23 @@
++import { z } from "zod";
++
++export const OrganizationMemberSchema = z.object({
++  name: z
++    .string()
++    .min(2, "Nama minimal 2 karakter")
++    .max(100, "Nama maksimal 100 karakter"),
++  position: z
++    .string()
++    .min(2, "Jabatan minimal 2 karakter")
++    .max(100, "Jabatan maksimal 100 karakter"),
++  photo: z
++    .string()
++    .url("URL foto tidak valid")
++    .optional()
++    .or(z.literal("")),
++  orderIndex: z.coerce.number().int().min(0).default(0),
++});
++
++export const OrganizationMemberUpdateSchema = OrganizationMemberSchema.partial();
++
++export type OrganizationMemberInput = z.infer<typeof OrganizationMemberSchema>;
++export type OrganizationMemberUpdate = z.infer<typeof OrganizationMemberUpdateSchema>;
+diff --git a/services/organization.service.ts b/services/organization.service.ts
+new file mode 100644
+index 0000000..eabe700
+--- /dev/null
++++ b/services/organization.service.ts
+@@ -0,0 +1,7 @@
++import prisma from "@/lib/prisma";
++
++export async function getAllMembers() {
++  return prisma.organizationMember.findMany({
++    orderBy: { orderIndex: "asc" },
++  });
++}
