@@ -44,6 +44,7 @@ const NAV_ITEMS = [
   { label: "Berita", href: "/dashboard/news", icon: Newspaper, resource: "news" },
   { label: "Galeri", href: "/dashboard/gallery", icon: ImageIcon, resource: "gallery" },
   { label: "Sejarah Gereja", href: "/dashboard/history", icon: Landmark, resource: "settings" },
+  { label: "Profil Paroki", href: "/dashboard/profil", icon: Church, resource: "settings" },
   { label: "Jenis Pelayanan", href: "/dashboard/roles", icon: Tags, resource: "service_roles" },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings, resource: "settings" },
 ];
