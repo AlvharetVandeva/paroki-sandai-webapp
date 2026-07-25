@@ -32,6 +32,7 @@ import {
   UserCog,
   ImageIcon,
   Landmark,
+  Church,
 } from "lucide-react";
 
 const NAV_ITEMS = [
