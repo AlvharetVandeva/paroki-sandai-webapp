@@ -106,7 +106,7 @@ function MemberFormDialog({
     const payload = {
       name,
       position,
-      photo: photo || undefined,
+      photo: photo || null,
       orderIndex: Number(orderIndex) || 0,
     };
     const result = isEdit
