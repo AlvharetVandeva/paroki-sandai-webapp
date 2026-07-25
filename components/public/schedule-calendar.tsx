@@ -470,7 +470,10 @@ export function ScheduleCalendar({
                 )}
               </div>
               {detailItem.data.description && (
-                <p className="text-sm text-slate-600">{detailItem.data.description}</p>
+                <div
+                  className="prose prose-slate prose-sm max-w-none text-slate-700"
+                  dangerouslySetInnerHTML={{ __html: detailItem.data.description }}
+                />
               )}
               {detailItem.data.assignments.length > 0 && (
                 <div>
