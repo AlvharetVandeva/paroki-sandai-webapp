@@ -2,6 +2,8 @@ import { getSchedulesForMonth, getUpcomingSchedules } from "@/services/schedule.
 import { getEventsForMonth, getUpcomingEvents } from "@/services/event.service";
 import { ScheduleCalendar, type CalendarSchedule, type CalendarEvent } from "@/components/public/schedule-calendar";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Jadwal Pelayanan | Paroki Sandai",
   description: "Kalender lengkap jadwal misa dan kegiatan pelayanan Paroki Sandai.",

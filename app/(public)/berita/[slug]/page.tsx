@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, User as UserIcon } from "lucide-react";
 import { getNewsBySlug, getPublishedNews } from "@/services/news.service";
 
+export const dynamic = "force-dynamic";
+
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   weekday: "long",
   day: "numeric",

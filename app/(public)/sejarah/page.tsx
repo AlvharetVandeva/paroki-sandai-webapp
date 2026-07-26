@@ -2,6 +2,8 @@
 import { getSetting } from "@/services/site-setting.service";
 import { PageHeader } from "@/components/public/page-header";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Sejarah Gereja | Paroki Sandai",
   description: "Sejarah berdirinya Gereja Katolik Paroki Sandai.",

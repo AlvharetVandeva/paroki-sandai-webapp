@@ -34,6 +34,8 @@ export async function createNews(data: any) {
     });
 
     revalidatePath("/dashboard/news");
+    revalidatePath("/berita");
+    revalidatePath("/", "layout");
     return { success: true, data: news };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal membuat berita" };
@@ -67,6 +69,9 @@ export async function updateNews(id: number, data: any) {
 
     revalidatePath("/dashboard/news");
     revalidatePath(`/dashboard/news/${id}`);
+    revalidatePath("/berita");
+    if (slug) revalidatePath(`/berita/${slug}`);
+    revalidatePath("/", "layout");
     return { success: true, data: news };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal mengubah berita" };
@@ -80,6 +85,8 @@ export async function deleteNews(id: number) {
 
     await prisma.news.delete({ where: { id } });
     revalidatePath("/dashboard/news");
+    revalidatePath("/berita");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menghapus berita" };
@@ -99,6 +106,8 @@ export async function togglePublishStatus(id: number, publish: boolean) {
     });
     revalidatePath("/dashboard/news");
     revalidatePath(`/dashboard/news/${id}`);
+    revalidatePath("/berita");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal mengubah status publikasi" };

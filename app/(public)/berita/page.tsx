@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/public/page-header";
 import { getPublishedNewsPage, getPublishedNews } from "@/services/news.service";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Berita | Paroki Sandai",
   description: "Berita dan informasi terbaru dari Paroki Sandai.",

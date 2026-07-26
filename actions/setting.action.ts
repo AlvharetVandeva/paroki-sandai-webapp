@@ -16,6 +16,7 @@ export async function saveSiteSetting(key: string, value: string) {
     });
 
     revalidatePath("/dashboard/history");
+    revalidatePath("/sejarah");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menyimpan pengaturan" };

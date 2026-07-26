@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getEventById } from "@/services/event.service";
 import { Calendar, MapPin, ChevronLeft, Navigation } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {
