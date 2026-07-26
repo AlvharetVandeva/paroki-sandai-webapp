@@ -3,7 +3,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Clock, MapPin, Pencil } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Navigation, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -34,6 +34,10 @@ export default async function ScheduleDetailPage(props: { params: Promise<{ id: 
   const endDate = new Date(schedule.endAt);
   
   const canEdit = hasPermission(session.user.permissions || [], "schedules", "update");
+  const hasCoords = schedule.latitude != null && schedule.longitude != null;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps/search/?api=1&query=${schedule.latitude},${schedule.longitude}`
+    : null;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -91,8 +95,24 @@ export default async function ScheduleDetailPage(props: { params: Promise<{ id: 
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Lokasi</p>
                     <p className="font-medium">{schedule.location}</p>
+                    {schedule.address && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{schedule.address}</p>
+                    )}
                   </div>
                 </div>
+                {mapsUrl && (
+                  <div className="sm:col-span-2">
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                    >
+                      <Navigation className="h-4 w-4" />
+                      Lihat di Peta
+                    </a>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

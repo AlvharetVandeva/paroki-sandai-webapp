@@ -6,11 +6,18 @@ import { createSchedule, updateSchedule } from "@/actions/schedule.action";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Plus, X, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import dynamic from "next/dynamic";
+
+const MapPicker = dynamic(() => import("@/components/map-picker"), { ssr: false });
 
 type Role = { id: number; name: string };
 type Person = { id: number; fullName: string; role: { id: number; name: string } | null };
@@ -24,6 +31,9 @@ export interface ScheduleFormProps {
     endAt: Date;
     location: string;
     description: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    address: string | null;
     assignments: Assignment[];
   };
   roles: Role[];
@@ -41,6 +51,8 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
     initialData?.endAt ? new Date(initialData.endAt) : undefined
   );
   const [location, setLocation] = useState(initialData?.location || "");
+  const [latitude, setLatitude] = useState(initialData?.latitude?.toString() ?? "");
+  const [longitude, setLongitude] = useState(initialData?.longitude?.toString() ?? "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [assignments, setAssignments] = useState<Assignment[]>(initialData?.assignments || []);
   const [formError, setFormError] = useState<string | null>(null);
@@ -82,6 +94,9 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
       endAt: endAt,
       location: location || "Gereja Paroki",
       description,
+      latitude: latitude ? Number(latitude) : null,
+      longitude: longitude ? Number(longitude) : null,
+      address: null,
       assignments: assignments.filter((a) => a.roleId > 0),
     };
 
@@ -117,45 +132,80 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-card p-6 border rounded-lg shadow-sm">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Kegiatan / Judul <span className="text-destructive">*</span></Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Misa Hari Raya..." />
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Kolom Kiri: Detail Jadwal */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Detail Jadwal</CardTitle>
+                <CardDescription>Informasi utama tentang jadwal pelayanan.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Kegiatan / Judul <span className="text-destructive">*</span></Label>
+                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Misa Hari Raya..." />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startAt" className="after:content-['*'] after:ml-0.5 after:text-red-500">Waktu Mulai</Label>
+                  <DateTimePicker value={startAt} onChange={setStartAt} disabled={loading} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="endAt" className="after:content-['*'] after:ml-0.5 after:text-red-500">Waktu Selesai</Label>
+                  <DateTimePicker value={endAt} onChange={setEndAt} disabled={loading} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="loc">Lokasi</Label>
+                  <Textarea id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Gereja Paroki" rows={2} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Deskripsi</Label>
+                  <RichTextEditor value={description} onChange={setDescription} />
+                  <p className="text-xs text-muted-foreground">Isikan detail tambahan, panduan singkat, atau teks bacaan jika diperlukan.</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="startAt" className="after:content-['*'] after:ml-0.5 after:text-red-500">Waktu Mulai</Label>
-                <DateTimePicker 
-                  value={startAt} 
-                  onChange={setStartAt}
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endAt" className="after:content-['*'] after:ml-0.5 after:text-red-500">Waktu Selesai</Label>
-                <DateTimePicker 
-                  value={endAt} 
-                  onChange={setEndAt}
-                  disabled={loading}
-                />
-              </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="loc">Lokasi</Label>
-            <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Gereja Paroki" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Deskripsi</Label>
-            <RichTextEditor value={description} onChange={setDescription} />
-            <p className="text-xs text-muted-foreground">Isikan detail tambahan, panduan singkat, atau teks bacaan jika diperlukan.</p>
+
+          {/* Kolom Kanan: Peta dan Lokasi */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Lokasi di Peta</CardTitle>
+                <CardDescription>Nama tempat / alamat kegiatan (opsional).</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Titik Koordinat (Opsional)</Label>
+                  <p className="text-xs text-muted-foreground mb-2">Cari atau geser pin di peta. Jika dibiarkan kosong, koordinat tidak akan disimpan.</p>
+                  <div className="flex gap-4 text-xs font-mono bg-muted p-2 rounded-md mb-2">
+                    <div>Lat: <span className="font-semibold">{latitude || "-"}</span></div>
+                    <div>Lng: <span className="font-semibold">{longitude || "-"}</span></div>
+                    {(latitude || longitude) && (
+                      <button type="button" onClick={() => { setLatitude(""); setLongitude(""); }} className="ml-auto text-destructive hover:underline">Reset</button>
+                    )}
+                  </div>
+                  <MapPicker
+                    latitude={latitude}
+                    longitude={longitude}
+                    onLocationChange={(lat, lng, addr) => {
+                      setLatitude(lat);
+                      setLongitude(lng);
+                      if (addr && !location) setLocation(addr);
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <div className="space-y-4 pt-6 border-t">
+        {/* Tugas Pelayanan */}
+        <div className="mt-6 space-y-4 pt-6 border-t">
           <div className="flex items-center justify-between border-b pb-4">
             <div>
               <Label className="text-lg font-semibold block">Tugas Pelayanan</Label>
@@ -165,7 +215,7 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
               <Plus className="mr-1 h-4 w-4" /> Tambah Petugas
             </Button>
           </div>
-          
+
           <div className="space-y-4">
             {assignments.map((a, i) => (
               <div key={i} className="flex flex-col md:flex-row items-start md:items-end gap-4 rounded-lg border bg-muted/20 p-4">
@@ -180,8 +230,8 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
                 </div>
                 <div className="flex-1 space-y-2 w-full">
                   <Label className="text-sm font-medium">Nama Petugas</Label>
-                  <Select 
-                    value={a.personId?.toString() ?? ""} 
+                  <Select
+                    value={a.personId?.toString() ?? ""}
                     onValueChange={(v) => updateAssignment(i, "personId", v ?? "")}
                     disabled={!a.roleId}
                   >
@@ -210,12 +260,12 @@ export function ScheduleForm({ initialData, roles, persons }: ScheduleFormProps)
         </div>
 
         {formError && (
-          <div className="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+          <div className="mt-6 p-3 bg-destructive/15 text-destructive rounded-md text-sm">
             {formError}
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-6 border-t">
+        <div className="flex justify-end gap-3 pt-6 mt-6 border-t">
           <Link href="/dashboard/schedules" className={buttonVariants({ variant: "outline" }) + (loading ? " pointer-events-none opacity-50" : "")}>
             Batal
           </Link>

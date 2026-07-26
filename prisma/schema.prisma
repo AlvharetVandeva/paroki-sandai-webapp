@@ -88,6 +88,9 @@ model Schedule {
   endAt       DateTime
   location    String               @default("Gereja Paroki")
   description String?              @db.Text
+  latitude    Float?
+  longitude   Float?
+  address     String?
   assignments ScheduleAssignment[]
 }
 

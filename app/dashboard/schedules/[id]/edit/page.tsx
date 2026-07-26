@@ -31,6 +31,9 @@ export default async function EditSchedulePage(props: { params: Promise<{ id: st
   // Transform schedule assignments to match the form props
   const formattedSchedule = {
     ...schedule,
+    latitude: schedule.latitude ?? null,
+    longitude: schedule.longitude ?? null,
+    address: schedule.address ?? null,
     assignments: schedule.assignments.map(a => ({
       roleId: a.roleId,
       personId: a.personId,
