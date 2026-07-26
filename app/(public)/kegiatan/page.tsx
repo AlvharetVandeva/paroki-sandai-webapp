@@ -4,6 +4,8 @@ import { getAllEvents } from "@/services/event.service";
 import { Calendar, MapPin } from "lucide-react";
 import { PageHeader } from "@/components/public/page-header";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Kegiatan | Paroki Sandai",
   description: "Daftar kegiatan dan acara Gereja Katolik Paroki Sandai.",

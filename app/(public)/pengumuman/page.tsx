@@ -2,6 +2,8 @@ import { getAnnouncementsPage } from "@/services/announcement.service";
 import { AnnouncementsList } from "@/components/public/announcements-list";
 import { PageHeader } from "@/components/public/page-header";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Pengumuman | Paroki Sandai",
   description: "Daftar pengumuman dan informasi terbaru dari Paroki Sandai.",

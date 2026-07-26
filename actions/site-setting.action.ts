@@ -16,4 +16,7 @@ export async function updateSettings(data: Record<string, string>) {
   }
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/profil");
+  revalidatePath("/sejarah");
+  revalidatePath("/", "layout");
 }

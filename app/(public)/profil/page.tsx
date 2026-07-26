@@ -3,6 +3,8 @@ import { getSetting } from "@/services/site-setting.service";
 import { PageHeader } from "@/components/public/page-header";
 import { ProfileVideo } from "@/components/public/profile-video";
 import { OrganizationChart } from "@/components/public/organization-chart";
+
+export const dynamic = "force-dynamic";
 import { ParishRegion } from "@/components/public/parish-region";
 
 export const metadata: Metadata = {

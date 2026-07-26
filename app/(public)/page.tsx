@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import {
   AnnouncementsSection,

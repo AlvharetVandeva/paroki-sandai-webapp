@@ -9,6 +9,8 @@ export async function createAnnouncement(data: { title: string; content: string 
     const parsed = AnnouncementSchema.parse(data);
     const announcement = await prisma.announcement.create({ data: parsed });
     revalidatePath("/dashboard/announcements");
+    revalidatePath("/pengumuman");
+    revalidatePath("/", "layout");
     return { success: true, data: announcement };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal membuat pengumuman" };
@@ -21,6 +23,8 @@ export async function updateAnnouncement(id: number, data: { title?: string; con
     const announcement = await prisma.announcement.update({ where: { id }, data: parsed });
     revalidatePath("/dashboard/announcements");
     revalidatePath(`/dashboard/announcements/${id}`);
+    revalidatePath("/pengumuman");
+    revalidatePath("/", "layout");
     return { success: true, data: announcement };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal mengubah pengumuman" };
@@ -31,6 +35,8 @@ export async function deleteAnnouncement(id: number) {
   try {
     await prisma.announcement.delete({ where: { id } });
     revalidatePath("/dashboard/announcements");
+    revalidatePath("/pengumuman");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menghapus pengumuman" };

@@ -30,6 +30,8 @@ export async function createSchedule(data: ScheduleInput) {
   });
 
   revalidatePath("/dashboard/schedules");
+  revalidatePath("/jadwal");
+  revalidatePath("/", "layout");
   return { success: true, error: null };
 }
 
@@ -60,10 +62,14 @@ export async function updateSchedule(
   const { assignments: _, ...updateData } = data;
   await prisma.schedule.update({ where: { id }, data: updateData });
   revalidatePath("/dashboard/schedules");
+  revalidatePath("/jadwal");
+  revalidatePath("/", "layout");
   return { success: true, error: null };
 }
 
 export async function deleteSchedule(id: number) {
   await prisma.schedule.delete({ where: { id } });
   revalidatePath("/dashboard/schedules");
+  revalidatePath("/jadwal");
+  revalidatePath("/", "layout");
 }

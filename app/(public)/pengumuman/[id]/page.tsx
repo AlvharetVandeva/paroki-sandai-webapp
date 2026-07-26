@@ -4,6 +4,8 @@ import { ArrowLeft, Megaphone, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getAnnouncementById, getRecentAnnouncements } from "@/services/announcement.service";
 
+export const dynamic = "force-dynamic";
+
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   weekday: "long",
   day: "numeric",
