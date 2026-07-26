@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getGalleryBySlug, getRecentGalleries } from "@/services/gallery.service";
 import { GalleryLightbox } from "@/components/public/gallery-lightbox";
 
+export const dynamic = "force-dynamic";
+
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   day: "numeric",
   month: "long",
