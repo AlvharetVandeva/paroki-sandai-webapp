@@ -20,6 +20,9 @@ export async function createSchedule(data: ScheduleInput) {
       endAt: parsed.endAt,
       location: parsed.location ?? "Gereja Paroki",
       description: parsed.description,
+      latitude: parsed.latitude ?? null,
+      longitude: parsed.longitude ?? null,
+      address: parsed.address ?? null,
       assignments: parsed.assignments && parsed.assignments.length > 0
         ? { create: parsed.assignments.map((a) => ({ roleId: a.roleId, personId: a.personId ?? undefined })) }
         : undefined,

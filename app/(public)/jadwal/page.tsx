@@ -21,6 +21,9 @@ function mapSchedule(s: any): CalendarSchedule {
     endAt: s.endAt,
     location: s.location,
     description: s.description,
+    latitude: s.latitude,
+    longitude: s.longitude,
+    address: s.address,
     assignments: (s.assignments ?? []).map((a: any) => ({
       id: a.id,
       person: a.person

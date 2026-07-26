@@ -20,6 +20,9 @@ export type CalendarSchedule = {
   endAt: Date | string;
   location: string;
   description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  address?: string | null;
   assignments: {
     id: number;
     person: { id: number; fullName: string; role: { name: string } | null } | null;
@@ -475,6 +478,17 @@ export function ScheduleCalendar({
                   className="prose prose-slate prose-sm max-w-none text-slate-700"
                   dangerouslySetInnerHTML={{ __html: detailItem.data.description }}
                 />
+              )}
+              {detailItem.data.latitude != null && detailItem.data.longitude != null && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${detailItem.data.latitude},${detailItem.data.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100"
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  Lihat di Peta
+                </a>
               )}
               {detailItem.data.assignments.length > 0 && (
                 <div>

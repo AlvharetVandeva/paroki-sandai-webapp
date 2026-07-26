@@ -14,6 +14,9 @@ const ScheduleBase = z.object({
   endAt: z.coerce.date({ message: "Tanggal selesai harus diisi" }),
   location: z.string().max(200).optional().default("Gereja Paroki"),
   description: z.string().optional(),
+  latitude: z.coerce.number().min(-90).max(90).optional().nullable(),
+  longitude: z.coerce.number().min(-180).max(180).optional().nullable(),
+  address: z.string().optional().nullable(),
   assignments: z.array(ScheduleAssignmentSchema).optional().default([]),
 });
 
