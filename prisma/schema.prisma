@@ -172,12 +172,19 @@ model GalleryImage {
 
 // ─── Profil Paroki ──────────────────────────────────────────────────────────
 
-model OrganizationMember {
+model ParishCenter {
+  id        Int      @id @default(autoincrement())
+  name      String                         // nama panjang paroki
+  patron    String                         // nama pelindung
+  updatedAt DateTime @updatedAt
+}
+
+model Station {
   id         Int      @id @default(autoincrement())
-  name       String
-  position   String
-  photo      String?
-  orderIndex Int      @default(0)
+  name       String                        // nama stasi
+  patron     String                        // nama pelindung stasi
+  address    String?                       // alamat, nullable
+  orderIndex Int      @default(0)          // urutan tampil
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
