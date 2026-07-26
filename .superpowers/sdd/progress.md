@@ -15,3 +15,4 @@ Task 4 (revisi): complete (commits 6c7ecbe..fac66e4, review clean — direct rev
 Task 5-6 (revisi): complete (commits fac66e4..f998724, implementer merged — public components + CMS dashboard, build passes)
 Task 7 (revisi): complete (commits f998724..c74bfc5, org-grid deleted, lint pass — no new errors)
 Post-review fix: complete (commit c0126de, revalidatePath('/profil') added to 6 actions + removeOrganizationChart action)
+Task Statistics 1-3: complete (commits 98755b2..4ca1b25, statistics counter + CMS tab, build passes)
