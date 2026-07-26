@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
     const uniqueSuffix = crypto.randomBytes(8).toString("hex");
     const filename = `uploads/${uniqueSuffix}.webp`;
 
-    // Upload to Vercel Blob Storage
-    const blob = await put(filename, webpBuffer, {
+    // Upload to Vercel Blob Storage — pakai Blob object, bukan Buffer
+    // Buffer menyebabkan SharedArrayBuffer error di Vercel Node.js runtime
+    const blob = await put(filename, new Blob([webpBuffer], { type: "image/webp" }), {
       access: "public",
-      contentType: "image/webp",
     });
 
     return NextResponse.json({
