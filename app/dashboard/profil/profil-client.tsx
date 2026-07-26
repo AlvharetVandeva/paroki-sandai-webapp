@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createMember,
-  updateMember,
-  deleteMember,
-  saveProfileVideo,
-} from "@/actions/organization.action";
+import { saveOrganizationChart, saveProfileVideo } from "@/actions/organization.action";
+import { saveParishCenter } from "@/actions/parish-center.action";
+import { createStation, updateStation, deleteStation } from "@/actions/station.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,21 +30,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
+import { ImageUp, Loader2, Pencil, Trash2, Plus } from "lucide-react";
 
-interface Member {
+interface ParishCenterData {
   id: number;
   name: string;
-  position: string;
-  photo: string | null;
+  patron: string;
+}
+
+interface StationData {
+  id: number;
+  name: string;
+  patron: string;
+  address: string | null;
   orderIndex: number;
 }
 
 interface ProfilClientProps {
   videoUrl: string;
-  members: Member[];
+  chartUrl: string;
+  center: ParishCenterData | null;
+  stations: StationData[];
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -60,29 +64,78 @@ function extractYouTubeId(url: string): string | null {
   }
 }
 
-function MemberFormDialog({
-  initial,
-  onSaved,
-  open,
-  onOpenChange,
-}: {
-  initial?: Member;
-  onSaved: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  const router = useRouter();
-  const isEdit = !!initial;
-  const [name, setName] = useState(initial?.name ?? "");
-  const [position, setPosition] = useState(initial?.position ?? "");
-  const [photo, setPhoto] = useState(initial?.photo ?? "");
-  const [orderIndex, setOrderIndex] = useState(
-    String(initial?.orderIndex ?? 0)
-  );
-  const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+/* ────────── Tab 1: Video Profil ────────── */
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+function VideoTab({
+  video,
+  onVideoChange,
+  onSave,
+  saving,
+}: {
+  video: string;
+  onVideoChange: (v: string) => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  const videoId = extractYouTubeId(video);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Video Profil Paroki</CardTitle>
+        <CardDescription>
+          Masukkan URL video YouTube untuk ditampilkan di halaman profil.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="video-url">URL Video YouTube</Label>
+          <Input
+            id="video-url"
+            value={video}
+            onChange={(e) => onVideoChange(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+        </div>
+        {videoId && (
+          <div className="overflow-hidden rounded-xl shadow-sm ring-1 ring-slate-200">
+            <div className="relative aspect-video w-full">
+              <iframe
+                className="absolute inset-0 h-full w-full"
+                src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+                title="Preview Video Profil"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
+        <div className="flex justify-end">
+          <Button onClick={onSave} disabled={saving}>
+            {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+            Simpan Video
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ────────── Tab 2: Bagan Organisasi ────────── */
+
+function OrganizationChartTab({
+  chartUrl,
+  onSaved,
+}: {
+  chartUrl: string;
+  onSaved: () => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(chartUrl);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
@@ -92,44 +145,146 @@ function MemberFormDialog({
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Upload gagal");
-      setPhoto(data.url);
+      setPreview(data.url);
     } catch (err: any) {
-      toast.error(err.message || "Gagal mengunggah foto");
+      toast.error(err.message || "Gagal mengunggah gambar");
     } finally {
       setUploading(false);
     }
   };
+
+  const handleSave = async () => {
+    if (!preview) return;
+    const result = await saveOrganizationChart(preview);
+    if (!result?.success) {
+      toast.error(result?.error ?? "Gagal menyimpan bagan");
+      return;
+    }
+    toast.success("Bagan organisasi berhasil disimpan");
+    router.refresh();
+  };
+
+  const handleRemove = () => {
+    setPreview("");
+    saveOrganizationChart("").then((r) => {
+      if (!r?.success) {
+        toast.error(r?.error ?? "Gagal menghapus bagan");
+        return;
+      }
+      toast.success("Bagan organisasi berhasil dihapus");
+      router.refresh();
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Bagan Organisasi</CardTitle>
+        <CardDescription>
+          Unggah gambar bagan struktur organisasi paroki.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {preview ? (
+          <div className="overflow-hidden rounded-xl border border-slate-200">
+            <img
+              src={preview}
+              alt="Pratinjau bagan"
+              className="mx-auto h-auto w-full max-w-lg object-contain p-4"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 py-12 text-center">
+            <ImageUp className="mb-2 h-8 w-8 text-slate-400" />
+            <p className="text-sm text-muted-foreground">Belum ada bagan organisasi.</p>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+            {preview ? "Ganti Gambar" : "Pilih Gambar"}
+          </Button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={handleUpload}
+            className="hidden"
+          />
+          {preview && (
+            <Button variant="destructive" onClick={handleRemove}>
+              Hapus
+            </Button>
+          )}
+        </div>
+
+        {preview && (
+          <div className="flex justify-end">
+            <Button onClick={handleSave}>Simpan Bagan</Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ────────── Tab 3: Wilayah ────────── */
+
+function StationFormDialog({
+  initial,
+  onSaved,
+  open,
+  onOpenChange,
+}: {
+  initial?: StationData;
+  onSaved: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const isEdit = !!initial;
+  const [name, setName] = useState(initial?.name ?? "");
+  const [patron, setPatron] = useState(initial?.patron ?? "");
+  const [address, setAddress] = useState(initial?.address ?? "");
+  const [orderIndex, setOrderIndex] = useState(String(initial?.orderIndex ?? 0));
+  const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     const payload = {
       name,
-      position,
-      photo: photo || null,
+      patron,
+      address: address || null,
       orderIndex: Number(orderIndex) || 0,
     };
+
     const result = isEdit
-      ? await updateMember(initial!.id, payload)
-      : await createMember(payload);
+      ? await updateStation(initial!.id, payload)
+      : await createStation(payload);
+
     setSaving(false);
     if (!result?.success) {
       toast.error(result?.error ?? "Gagal menyimpan");
       return;
     }
-    toast.success(isEdit ? "Anggota berhasil diperbarui" : "Anggota berhasil ditambahkan");
+    toast.success(isEdit ? "Stasi berhasil diperbarui" : "Stasi berhasil ditambahkan");
     onOpenChange(false);
     onSaved();
   }
 
   function handleDelete() {
-    if (!confirm("Hapus anggota ini? Data tidak bisa dikembalikan.")) return;
-    deleteMember(initial!.id).then((r) => {
+    if (!confirm("Hapus stasi ini? Data tidak bisa dikembalikan.")) return;
+    deleteStation(initial!.id).then((r) => {
       if (!r?.success) {
         toast.error(r?.error ?? "Gagal menghapus");
         return;
       }
-      toast.success("Anggota berhasil dihapus");
+      toast.success("Stasi berhasil dihapus");
       onOpenChange(false);
       onSaved();
     });
@@ -139,61 +294,42 @@ function MemberFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Edit Anggota" : "Tambah Anggota"}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Stasi" : "Tambah Stasi"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="m-name">Nama <span className="text-destructive">*</span></Label>
+            <Label htmlFor="s-name">Nama Stasi <span className="text-destructive">*</span></Label>
             <Input
-              id="m-name"
+              id="s-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="Romo Yohanes Prasetyo"
+              placeholder="Stasi Santa Maria"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="m-position">Jabatan <span className="text-destructive">*</span></Label>
+            <Label htmlFor="s-patron">Pelindung <span className="text-destructive">*</span></Label>
             <Input
-              id="m-position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              id="s-patron"
+              value={patron}
+              onChange={(e) => setPatron(e.target.value)}
               required
-              placeholder="Pastor Paroki"
+              placeholder="Santa Maria"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="m-photo">Foto</Label>
-            <div className="flex items-center gap-3">
-              <Input
-                id="m-photo"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={uploading}
-                className="flex-1"
-              />
-              {uploading && <Loader2 className="h-4 w-4 animate-spin shrink-0" />}
-            </div>
-            {photo && (
-              <div className="mt-2 flex items-center gap-2">
-                <img src={photo} alt="Preview" className="h-10 w-10 rounded-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setPhoto("")}
-                  className="text-xs text-destructive hover:underline"
-                >
-                  Hapus foto
-                </button>
-              </div>
-            )}
+            <Label htmlFor="s-address">Alamat</Label>
+            <Input
+              id="s-address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Jl. Gereja No. 1"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="m-order">Urutan</Label>
+            <Label htmlFor="s-order">Urutan</Label>
             <Input
-              id="m-order"
+              id="s-order"
               type="number"
               min={0}
               value={orderIndex}
@@ -205,17 +341,13 @@ function MemberFormDialog({
           </div>
           <div className="flex justify-end gap-3 pt-2">
             {isEdit && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-              >
+              <Button type="button" variant="destructive" onClick={handleDelete}>
                 <Trash2 className="mr-1 h-4 w-4" /> Hapus
               </Button>
             )}
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-              {isEdit ? "Simpan Perubahan" : "Tambah Anggota"}
+              {isEdit ? "Simpan Perubahan" : "Tambah Stasi"}
             </Button>
           </div>
         </form>
@@ -224,14 +356,159 @@ function MemberFormDialog({
   );
 }
 
-export function ProfilClient({ videoUrl, members }: ProfilClientProps) {
+function WilayahTab({
+  center,
+  stations,
+  onSaved,
+}: {
+  center: ParishCenterData | null;
+  stations: StationData[];
+  onSaved: () => void;
+}) {
+  const router = useRouter();
+  const [parishName, setParishName] = useState(center?.name ?? "");
+  const [parishPatron, setParishPatron] = useState(center?.patron ?? "");
+  const [savingCenter, setSavingCenter] = useState(false);
+  const [stationDialog, setStationDialog] = useState(false);
+  const [editingStation, setEditingStation] = useState<StationData | undefined>(undefined);
+
+  const handleSaveCenter = async () => {
+    if (!parishName || !parishPatron) return;
+    setSavingCenter(true);
+    const result = await saveParishCenter({ name: parishName, patron: parishPatron });
+    setSavingCenter(false);
+    if (!result?.success) {
+      toast.error(result?.error ?? "Gagal menyimpan pusat paroki");
+      return;
+    }
+    toast.success("Pusat paroki berhasil disimpan");
+    router.refresh();
+  };
+
+  const openAdd = () => {
+    setEditingStation(undefined);
+    setStationDialog(true);
+  };
+
+  const openEdit = (s: StationData) => {
+    setEditingStation(s);
+    setStationDialog(true);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Pusat Paroki */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pusat Paroki</CardTitle>
+          <CardDescription>
+            Data pusat paroki yang ditampilkan di halaman profil.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="pc-name">Nama Paroki <span className="text-destructive">*</span></Label>
+              <Input
+                id="pc-name"
+                value={parishName}
+                onChange={(e) => setParishName(e.target.value)}
+                placeholder="Gereja Katolik Paroki Sandai"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pc-patron">Pelindung <span className="text-destructive">*</span></Label>
+              <Input
+                id="pc-patron"
+                value={parishPatron}
+                onChange={(e) => setParishPatron(e.target.value)}
+                placeholder="Santa Maria"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveCenter} disabled={savingCenter}>
+              {savingCenter && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              Simpan Pusat Paroki
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Daftar Stasi */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Stasi</CardTitle>
+            <CardDescription>Daftar stasi dalam naungan paroki.</CardDescription>
+          </div>
+          <Button onClick={openAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Tambah Stasi
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {stations.length === 0 ? (
+            <div className="border-2 border-dashed rounded-lg py-12 text-center text-muted-foreground">
+              <p className="text-sm">Belum ada data stasi.</p>
+              <p className="text-xs mt-1">
+                Klik &ldquo;Tambah Stasi&rdquo; untuk menambahkan.
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama Stasi</TableHead>
+                  <TableHead>Pelindung</TableHead>
+                  <TableHead>Alamat</TableHead>
+                  <TableHead className="w-20">Urutan</TableHead>
+                  <TableHead className="w-24">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stations.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-medium">{s.name}</TableCell>
+                    <TableCell>{s.patron}</TableCell>
+                    <TableCell className="text-sm text-slate-500">
+                      {s.address ?? "-"}
+                    </TableCell>
+                    <TableCell className="text-sm text-slate-500">
+                      {s.orderIndex}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEdit(s)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <StationFormDialog
+        initial={editingStation}
+        open={stationDialog}
+        onOpenChange={setStationDialog}
+        onSaved={() => router.refresh()}
+      />
+    </div>
+  );
+}
+
+/* ────────── Root ────────── */
+
+export function ProfilClient({ videoUrl, chartUrl, center, stations }: ProfilClientProps) {
   const router = useRouter();
   const [video, setVideo] = useState(videoUrl);
   const [savingVideo, setSavingVideo] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<Member | undefined>(undefined);
-
-  const videoId = extractYouTubeId(video);
 
   const handleSaveVideo = async () => {
     setSavingVideo(true);
@@ -245,156 +522,45 @@ export function ProfilClient({ videoUrl, members }: ProfilClientProps) {
     router.refresh();
   };
 
-  const openAdd = () => {
-    setEditingMember(undefined);
-    setDialogOpen(true);
-  };
-
-  const openEdit = (member: Member) => {
-    setEditingMember(member);
-    setDialogOpen(true);
-  };
+  const handleRefresh = () => router.refresh();
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profil Paroki</h1>
         <p className="text-muted-foreground">
-          Kelola video profil dan struktur organisasi paroki.
+          Kelola video profil, bagan organisasi, dan wilayah paroki.
         </p>
       </div>
 
       <Tabs defaultValue="video">
         <TabsList>
           <TabsTrigger value="video">Video Profil</TabsTrigger>
-          <TabsTrigger value="struktur">Struktur Organisasi</TabsTrigger>
+          <TabsTrigger value="bagan">Bagan Organisasi</TabsTrigger>
+          <TabsTrigger value="wilayah">Wilayah</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="video">
-          <Card>
-            <CardHeader>
-              <CardTitle>Video Profil Paroki</CardTitle>
-              <CardDescription>
-                Masukkan URL video YouTube untuk ditampilkan di halaman profil.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="video-url">URL Video YouTube</Label>
-                <Input
-                  id="video-url"
-                  value={video}
-                  onChange={(e) => setVideo(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                />
-              </div>
-              {videoId && (
-                <div className="overflow-hidden rounded-xl shadow-sm ring-1 ring-slate-200">
-                  <div className="relative aspect-video w-full">
-                    <iframe
-                      className="absolute inset-0 h-full w-full"
-                      src={`https://www.youtube-nocookie.com/embed/${videoId}`}
-                      title="Preview Video Profil"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )}
-              <div className="flex justify-end">
-                <Button onClick={handleSaveVideo} disabled={savingVideo}>
-                  {savingVideo && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                  Simpan Video
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="video" className="mt-4">
+          <VideoTab
+            video={video}
+            onVideoChange={setVideo}
+            onSave={handleSaveVideo}
+            saving={savingVideo}
+          />
         </TabsContent>
 
-        <TabsContent value="struktur">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Struktur Organisasi</CardTitle>
-                <CardDescription>
-                  Daftar anggota struktur organisasi paroki.
-                </CardDescription>
-              </div>
-              <Button onClick={openAdd}>
-                <Plus className="mr-1 h-4 w-4" /> Tambah Anggota
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {members.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                  <p className="text-sm">Belum ada anggota struktur organisasi.</p>
-                  <p className="text-xs mt-1">
-                    Klik &ldquo;Tambah Anggota&rdquo; untuk menambahkan.
-                  </p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-16">Foto</TableHead>
-                      <TableHead>Nama</TableHead>
-                      <TableHead>Jabatan</TableHead>
-                      <TableHead className="w-20">Urutan</TableHead>
-                      <TableHead className="w-24">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {members.map((m) => (
-                      <TableRow key={m.id}>
-                        <TableCell>
-                          <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-100">
-                            {m.photo ? (
-                              <img
-                                src={m.photo}
-                                alt={m.name}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-slate-400 text-xs">
-                                -
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">{m.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{m.position}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-slate-500">
-                          {m.orderIndex}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => openEdit(m)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="bagan" className="mt-4">
+          <OrganizationChartTab chartUrl={chartUrl} onSaved={handleRefresh} />
+        </TabsContent>
+
+        <TabsContent value="wilayah" className="mt-4">
+          <WilayahTab
+            center={center}
+            stations={stations}
+            onSaved={handleRefresh}
+          />
         </TabsContent>
       </Tabs>
-
-      <MemberFormDialog
-        initial={editingMember}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSaved={() => router.refresh()}
-      />
     </div>
   );
 }
