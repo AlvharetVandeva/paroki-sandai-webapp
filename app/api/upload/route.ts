@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { auth } from "@/auth";
 import crypto from "crypto";
 import sharp from "sharp";
+import { put } from "@vercel/blob";
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,23 +43,16 @@ export async function POST(req: NextRequest) {
 
     // Create a unique filename
     const uniqueSuffix = crypto.randomBytes(8).toString("hex");
-    const filename = `${uniqueSuffix}.webp`;
+    const filename = `uploads/${uniqueSuffix}.webp`;
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    try {
-      await mkdir(uploadsDir, { recursive: true });
-    } catch (e) {
-      // Ignore if exists
-    }
+    // Upload to Vercel Blob Storage
+    const blob = await put(filename, webpBuffer, {
+      access: "public",
+      contentType: "image/webp",
+    });
 
-    // Save compressed image to public/uploads
-    const filepath = path.join(uploadsDir, filename);
-    await writeFile(filepath, webpBuffer);
-
-    // Return the URL
     return NextResponse.json({
-      url: `/uploads/${filename}`,
+      url: blob.url,
       success: true,
     });
   } catch (error) {
