@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Images, Camera } from "lucide-react";
 import { getAllGalleries } from "@/services/gallery.service";
+import { PageHeader } from "@/components/public/page-header";
 
 export const metadata = {
   title: "Galeri | Paroki Sandai",
@@ -24,10 +25,10 @@ export default async function GaleriPage() {
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Galeri</h1>
-        <p className="text-slate-600">Album foto kegiatan dan dokumentasi paroki</p>
-      </div>
+      <PageHeader
+        title="Galeri"
+        description="Album foto kegiatan dan dokumentasi paroki."
+      />
 
       {galleries.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-500">

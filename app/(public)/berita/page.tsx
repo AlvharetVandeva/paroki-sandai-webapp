@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/public/page-header";
 import { getPublishedNewsPage, getPublishedNews } from "@/services/news.service";
 
 export const metadata = {
@@ -40,10 +41,10 @@ export default async function BeritaPage({ searchParams }: { searchParams: Searc
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Berita</h1>
-        <p className="text-slate-600">Kabar terbaru dari Paroki Sandai</p>
-      </div>
+      <PageHeader
+        title="Berita"
+        description="Kabar terbaru dari Paroki Sandai."
+      />
 
       <form method="GET" className="mb-6 flex gap-2">
         <div className="relative flex-1">
