@@ -3,6 +3,8 @@ import { Images, Camera } from "lucide-react";
 import { getAllGalleries } from "@/services/gallery.service";
 import { PageHeader } from "@/components/public/page-header";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Galeri | Paroki Sandai",
   description: "Galeri foto kegiatan dan dokumentasi Paroki Sandai.",

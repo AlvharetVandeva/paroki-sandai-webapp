@@ -33,6 +33,8 @@ export async function createGallery(data: GalleryInput) {
     });
 
     revalidatePath("/dashboard/gallery");
+    revalidatePath("/galeri");
+    revalidatePath("/", "layout");
     return { success: true, data: gallery };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal membuat album galeri" };
@@ -72,6 +74,9 @@ export async function updateGallery(id: number, data: GalleryInput) {
 
     revalidatePath("/dashboard/gallery");
     revalidatePath(`/dashboard/gallery/${id}`);
+    revalidatePath("/galeri");
+    revalidatePath(`/galeri/${slug}`);
+    revalidatePath("/", "layout");
     return { success: true, data: gallery };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal memperbarui album galeri" };
@@ -88,6 +93,8 @@ export async function deleteGallery(id: number) {
     });
 
     revalidatePath("/dashboard/gallery");
+    revalidatePath("/galeri");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menghapus album galeri" };
