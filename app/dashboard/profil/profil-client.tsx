@@ -6,6 +6,7 @@ import { saveOrganizationChart, removeOrganizationChart, saveProfileVideo } from
 import { saveParishCenter } from "@/actions/parish-center.action";
 import { createStation, updateStation, deleteStation } from "@/actions/station.action";
 import { saveStatistics } from "@/actions/statistics.action";
+import { savePastorGreeting } from "@/actions/pastor-greeting.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,10 @@ interface ProfilClientProps {
   statJiwa: string;
   statKK: string;
   statTahunPelayanan: string;
+  pastorPhoto: string;
+  pastorGreeting: string;
+  pastorName: string;
+  pastorTitle: string;
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -518,6 +523,12 @@ export function ProfilClient(props: ProfilClientProps) {
   const [statKK, setStatKK] = useState(props.statKK);
   const [statTahunPelayanan, setStatTahunPelayanan] = useState(props.statTahunPelayanan);
   const [savingStats, setSavingStats] = useState(false);
+  const [pastorPhoto, setPastorPhoto] = useState(props.pastorPhoto);
+  const [pastorGreeting, setPastorGreeting] = useState(props.pastorGreeting);
+  const [pastorName, setPastorName] = useState(props.pastorName);
+  const [pastorTitle, setPastorTitle] = useState(props.pastorTitle);
+  const [savingPastor, setSavingPastor] = useState(false);
+  const [uploadingPastor, setUploadingPastor] = useState(false);
 
   const handleSaveVideo = async () => {
     setSavingVideo(true);
@@ -547,6 +558,41 @@ export function ProfilClient(props: ProfilClientProps) {
     router.refresh();
   };
 
+  const handlePastorPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPastor(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Upload gagal");
+      setPastorPhoto(data.url);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal mengunggah foto");
+    } finally {
+      setUploadingPastor(false);
+    }
+  };
+
+  const handleSavePastor = async () => {
+    setSavingPastor(true);
+    const result = await savePastorGreeting({
+      photo: pastorPhoto,
+      greeting: pastorGreeting,
+      name: pastorName,
+      title: pastorTitle,
+    });
+    setSavingPastor(false);
+    if (!result?.success) {
+      toast.error(result?.error ?? "Gagal menyimpan sambutan pastor");
+      return;
+    }
+    toast.success("Sambutan pastor berhasil disimpan");
+    router.refresh();
+  };
+
   const handleRefresh = () => router.refresh();
 
   return (
@@ -564,6 +610,7 @@ export function ProfilClient(props: ProfilClientProps) {
           <TabsTrigger value="bagan">Bagan Organisasi</TabsTrigger>
           <TabsTrigger value="wilayah">Wilayah</TabsTrigger>
           <TabsTrigger value="statistik">Statistik</TabsTrigger>
+          <TabsTrigger value="pastor">Sambutan Pastor</TabsTrigger>
         </TabsList>
 
         <TabsContent value="video" className="mt-4">
@@ -636,6 +683,104 @@ export function ProfilClient(props: ProfilClientProps) {
                 <Button onClick={handleSaveStatistics} disabled={savingStats}>
                   {savingStats && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
                   Simpan Statistik
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Sambutan Pastor ────────────────────────────────── */}
+        <TabsContent value="pastor">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sambutan Pastor</CardTitle>
+              <CardDescription>
+                Foto, nama, jabatan, dan teks sambutan pastor yang ditampilkan di halaman beranda.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Foto */}
+              <div className="space-y-2">
+                <Label>Foto Pastor</Label>
+                {pastorPhoto && (
+                  <div className="mb-2 h-40 w-40 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+                    <img
+                      src={pastorPhoto}
+                      alt="Preview foto pastor"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <Label
+                    htmlFor="pastor-photo"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+                  >
+                    {uploadingPastor ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ImageUp className="h-4 w-4" />
+                    )}
+                    {pastorPhoto ? "Ganti Foto" : "Unggah Foto"}
+                  </Label>
+                  <Input
+                    id="pastor-photo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePastorPhotoUpload}
+                    disabled={uploadingPastor}
+                    className="hidden"
+                  />
+                  {pastorPhoto && (
+                    <button
+                      type="button"
+                      onClick={() => setPastorPhoto("")}
+                      className="text-sm text-destructive hover:underline"
+                    >
+                      Hapus foto
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Nama */}
+              <div className="space-y-2">
+                <Label htmlFor="pastor-name">Nama Pastor</Label>
+                <Input
+                  id="pastor-name"
+                  value={pastorName}
+                  onChange={(e) => setPastorName(e.target.value)}
+                  placeholder="Romo Yohanes Prasetyo"
+                />
+              </div>
+
+              {/* Jabatan */}
+              <div className="space-y-2">
+                <Label htmlFor="pastor-title">Jabatan</Label>
+                <Input
+                  id="pastor-title"
+                  value={pastorTitle}
+                  onChange={(e) => setPastorTitle(e.target.value)}
+                  placeholder="Pastor Paroki Sandai"
+                />
+              </div>
+
+              {/* Sambutan */}
+              <div className="space-y-2">
+                <Label htmlFor="pastor-greeting">Teks Sambutan</Label>
+                <textarea
+                  id="pastor-greeting"
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={pastorGreeting}
+                  onChange={(e) => setPastorGreeting(e.target.value)}
+                  placeholder="Semoga website ini membantu umat menemukan informasi pelayanan..."
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={handleSavePastor} disabled={savingPastor}>
+                  {savingPastor && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                  Simpan Sambutan
                 </Button>
               </div>
             </CardContent>

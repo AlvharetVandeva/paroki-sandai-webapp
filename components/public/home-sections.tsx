@@ -197,7 +197,28 @@ export function AnnouncementsSection({ announcements }: { announcements: RecentA
   );
 }
 
-export function PastorGreetingSection() {
+interface PastorGreetingProps {
+  photo: string | null;
+  greeting: string | null;
+  name: string | null;
+  title: string | null;
+}
+
+export function PastorGreetingSection({
+  photo,
+  greeting,
+  name,
+  title,
+}: PastorGreetingProps) {
+  if (!photo && !greeting && !name && !title) return null;
+
+  const photoUrl = photo || "/uploads/c85e0f03265664b6.webp";
+  const greetingText =
+    greeting ||
+    "Semoga website ini membantu umat menemukan informasi pelayanan, jadwal misa, dan kegiatan paroki dengan lebih mudah.";
+  const pastorName = name || "Pastor Paroki Sandai";
+  const pastorTitle = title || "Paroki Sandai";
+
   return (
     <section className="bg-blue-950 py-16 text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[280px_1fr] lg:items-center">
@@ -205,19 +226,21 @@ export function PastorGreetingSection() {
           <Image
             width={560}
             height={560}
-            src="/uploads/c85e0f03265664b6.webp"
-            alt="Pastor Paroki Sandai"
+            src={photoUrl}
+            alt={pastorName}
             className="h-full w-full object-cover opacity-90"
           />
         </div>
         <blockquote>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200">Sambutan Pastor</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200">
+            Sambutan Pastor
+          </p>
           <p className="mt-4 text-2xl font-semibold leading-relaxed sm:text-3xl">
-            “Semoga website ini membantu umat menemukan informasi pelayanan, jadwal misa, dan kegiatan paroki dengan lebih mudah.”
+            “{greetingText}”
           </p>
           <footer className="mt-6 text-blue-100">
-            <strong>Pastor Paroki Sandai</strong>
-            <span className="block text-sm">Paroki Sandai</span>
+            <strong>{pastorName}</strong>
+            <span className="block text-sm">{pastorTitle}</span>
           </footer>
         </blockquote>
       </div>

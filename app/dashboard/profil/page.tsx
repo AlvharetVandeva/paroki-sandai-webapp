@@ -8,6 +8,10 @@ export default async function ProfilPage() {
   const statJiwa = (await getSetting("statJiwa")) ?? "0";
   const statKK = (await getSetting("statKK")) ?? "0";
   const statTahunPelayanan = (await getSetting("statTahunPelayanan")) ?? "";
+  const pastorPhoto = (await getSetting("pastorPhoto")) ?? "";
+  const pastorGreeting = (await getSetting("pastorGreeting")) ?? "";
+  const pastorName = (await getSetting("pastorName")) ?? "";
+  const pastorTitle = (await getSetting("pastorTitle")) ?? "";
 
   const center = await getParishCenter();
   const stations = await getStations();
@@ -21,6 +25,10 @@ export default async function ProfilPage() {
       statJiwa={statJiwa}
       statKK={statKK}
       statTahunPelayanan={statTahunPelayanan}
+      pastorPhoto={pastorPhoto}
+      pastorGreeting={pastorGreeting}
+      pastorName={pastorName}
+      pastorTitle={pastorTitle}
     />
   );
 }

@@ -16,10 +16,14 @@ import { getUpcomingSchedules, getSchedulesForMonth } from "@/services/schedule.
 
 export default async function Home() {
   const now = new Date();
-  const [statJiwa, statKK, statTahunPelayanan, schedules, monthlySchedules, monthlyEvents, events, announcements, news] = await Promise.all([
+  const [statJiwa, statKK, statTahunPelayanan, pastorPhoto, pastorGreeting, pastorName, pastorTitle, schedules, monthlySchedules, monthlyEvents, events, announcements, news] = await Promise.all([
     getSetting("statJiwa"),
     getSetting("statKK"),
     getSetting("statTahunPelayanan"),
+    getSetting("pastorPhoto"),
+    getSetting("pastorGreeting"),
+    getSetting("pastorName"),
+    getSetting("pastorTitle"),
     getUpcomingSchedules(3),
     getSchedulesForMonth(now.getFullYear(), now.getMonth()),
     getEventsForMonth(now.getFullYear(), now.getMonth()),
@@ -40,7 +44,12 @@ export default async function Home() {
       <CalendarSection schedules={monthlySchedules} events={monthlyEvents} />
       <EventsSection events={events} />
       <AnnouncementsSection announcements={announcements} />
-      <PastorGreetingSection />
+      <PastorGreetingSection
+        photo={pastorPhoto}
+        greeting={pastorGreeting}
+        name={pastorName}
+        title={pastorTitle}
+      />
       <LatestNewsSection news={news} />
     </>
   );
