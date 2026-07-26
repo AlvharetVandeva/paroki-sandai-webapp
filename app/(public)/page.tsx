@@ -6,6 +6,8 @@ import {
   PastorGreetingSection,
   SchedulePreviewSection,
 } from "@/components/public/home-sections";
+import { StatisticsCounter } from "@/components/public/statistics-counter";
+import { getSetting } from "@/services/site-setting.service";
 import { CalendarSection } from "@/components/public/calendar-section";
 import { getRecentAnnouncements } from "@/services/announcement.service";
 import { getUpcomingEvents, getEventsForMonth } from "@/services/event.service";
@@ -14,7 +16,10 @@ import { getUpcomingSchedules, getSchedulesForMonth } from "@/services/schedule.
 
 export default async function Home() {
   const now = new Date();
-  const [schedules, monthlySchedules, monthlyEvents, events, announcements, news] = await Promise.all([
+  const [statJiwa, statKK, statTahunPelayanan, schedules, monthlySchedules, monthlyEvents, events, announcements, news] = await Promise.all([
+    getSetting("statJiwa"),
+    getSetting("statKK"),
+    getSetting("statTahunPelayanan"),
     getUpcomingSchedules(3),
     getSchedulesForMonth(now.getFullYear(), now.getMonth()),
     getEventsForMonth(now.getFullYear(), now.getMonth()),
@@ -27,6 +32,11 @@ export default async function Home() {
     <>
       <HeroCarousel />
       <SchedulePreviewSection schedules={schedules} />
+      <StatisticsCounter
+        jiwa={statJiwa ?? "0"}
+        kk={statKK ?? "0"}
+        tahunPelayanan={statTahunPelayanan ?? ""}
+      />
       <CalendarSection schedules={monthlySchedules} events={monthlyEvents} />
       <EventsSection events={events} />
       <AnnouncementsSection announcements={announcements} />

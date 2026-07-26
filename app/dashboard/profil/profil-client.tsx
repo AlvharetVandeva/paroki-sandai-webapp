@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { saveOrganizationChart, removeOrganizationChart, saveProfileVideo } from "@/actions/organization.action";
 import { saveParishCenter } from "@/actions/parish-center.action";
 import { createStation, updateStation, deleteStation } from "@/actions/station.action";
+import { saveStatistics } from "@/actions/statistics.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,9 @@ interface ProfilClientProps {
   chartUrl: string;
   center: ParishCenterData | null;
   stations: StationData[];
+  statJiwa: string;
+  statKK: string;
+  statTahunPelayanan: string;
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -505,10 +509,15 @@ function WilayahTab({
 
 /* ────────── Root ────────── */
 
-export function ProfilClient({ videoUrl, chartUrl, center, stations }: ProfilClientProps) {
+export function ProfilClient(props: ProfilClientProps) {
+  const { videoUrl, chartUrl, center, stations } = props;
   const router = useRouter();
   const [video, setVideo] = useState(videoUrl);
   const [savingVideo, setSavingVideo] = useState(false);
+  const [statJiwa, setStatJiwa] = useState(props.statJiwa);
+  const [statKK, setStatKK] = useState(props.statKK);
+  const [statTahunPelayanan, setStatTahunPelayanan] = useState(props.statTahunPelayanan);
+  const [savingStats, setSavingStats] = useState(false);
 
   const handleSaveVideo = async () => {
     setSavingVideo(true);
@@ -519,6 +528,22 @@ export function ProfilClient({ videoUrl, chartUrl, center, stations }: ProfilCli
       return;
     }
     toast.success("Video profil berhasil disimpan");
+    router.refresh();
+  };
+
+  const handleSaveStatistics = async () => {
+    setSavingStats(true);
+    const result = await saveStatistics({
+      jiwa: statJiwa || "0",
+      kk: statKK || "0",
+      tahunPelayanan: statTahunPelayanan,
+    });
+    setSavingStats(false);
+    if (!result?.success) {
+      toast.error(result?.error ?? "Gagal menyimpan statistik");
+      return;
+    }
+    toast.success("Statistik berhasil disimpan");
     router.refresh();
   };
 
@@ -538,6 +563,7 @@ export function ProfilClient({ videoUrl, chartUrl, center, stations }: ProfilCli
           <TabsTrigger value="video">Video Profil</TabsTrigger>
           <TabsTrigger value="bagan">Bagan Organisasi</TabsTrigger>
           <TabsTrigger value="wilayah">Wilayah</TabsTrigger>
+          <TabsTrigger value="statistik">Statistik</TabsTrigger>
         </TabsList>
 
         <TabsContent value="video" className="mt-4">
@@ -559,6 +585,61 @@ export function ProfilClient({ videoUrl, chartUrl, center, stations }: ProfilCli
             stations={stations}
             onSaved={handleRefresh}
           />
+        </TabsContent>
+
+        <TabsContent value="statistik">
+          <Card>
+            <CardHeader>
+              <CardTitle>Statistik Paroki</CardTitle>
+              <CardDescription>
+                Data statistik ditampilkan di halaman beranda dengan animasi hitung.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="stat-jiwa">Jiwa Penduduk</Label>
+                <Input
+                  id="stat-jiwa"
+                  type="number"
+                  min={0}
+                  value={statJiwa}
+                  onChange={(e) => setStatJiwa(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stat-kk">Kepala Keluarga</Label>
+                <Input
+                  id="stat-kk"
+                  type="number"
+                  min={0}
+                  value={statKK}
+                  onChange={(e) => setStatKK(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stat-tahun">Tahun Pelayanan</Label>
+                <Input
+                  id="stat-tahun"
+                  type="number"
+                  min={0}
+                  value={statTahunPelayanan}
+                  onChange={(e) => setStatTahunPelayanan(e.target.value)}
+                  placeholder="30"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Kosongkan jika tidak ingin ditampilkan di beranda.
+                </p>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={handleSaveStatistics} disabled={savingStats}>
+                  {savingStats && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                  Simpan Statistik
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
