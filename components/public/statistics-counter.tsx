@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/* -------------------------------------------------------------------------- */
+/*  Types & Helpers                                                           */
+/* -------------------------------------------------------------------------- */
+
 interface StatisticsCounterProps {
   jiwa: string;
   kk: string;
@@ -12,18 +16,29 @@ function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function AnimatedNumber({ target, label }: { target: number; label: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
+/* -------------------------------------------------------------------------- */
+/*  Animated Card                                                              */
+/* -------------------------------------------------------------------------- */
+
+function StatCard({
+  target,
+  label,
+  suffix,
+}: {
+  target: number;
+  label: string;
+  suffix?: string;
+}) {
+  const numberRef = useRef<HTMLSpanElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [done, setDone] = useState(false);
+  const [pulse, setPulse] = useState(false);
   const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (hasStarted.current || target === 0) {
-      setDone(true);
-      return;
-    }
+    if (hasStarted.current) return;
 
-    const el = ref.current;
+    const el = numberRef.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
@@ -31,7 +46,7 @@ function AnimatedNumber({ target, label }: { target: number; label: string }) {
         if (!entry.isIntersecting || hasStarted.current) return;
         hasStarted.current = true;
 
-        const duration = 2000;
+        const duration = 2400;
         const start = performance.now();
 
         function tick(now: number) {
@@ -44,12 +59,14 @@ function AnimatedNumber({ target, label }: { target: number; label: string }) {
             requestAnimationFrame(tick);
           } else {
             setDone(true);
+            // delayed pulse — the "candle lit" moment
+            setTimeout(() => setPulse(true), 150);
           }
         }
 
         requestAnimationFrame(tick);
       },
-      { threshold: 0.3 }
+      { threshold: 0.4 }
     );
 
     observer.observe(el);
@@ -57,42 +74,86 @@ function AnimatedNumber({ target, label }: { target: number; label: string }) {
   }, [target]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div
+      ref={cardRef}
+      className={`group relative overflow-hidden rounded-2xl bg-white px-6 py-8 text-center shadow-sm ring-1 ring-slate-200 transition-shadow duration-500 hover:shadow-lg ${
+        pulse ? "ring-amber-400/60" : ""
+      }`}
+    >
+      {/* Top accent bar — glows briefly on completion */}
+      <div
+        className={`absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 transition-[opacity,box-shadow] duration-1000 ${
+          pulse
+            ? "opacity-100 shadow-[0_0_12px_rgba(245,158,11,0.35)]"
+            : "opacity-60"
+        }`}
+        aria-hidden="true"
+      />
+
+      {/* Number */}
       <span
-        ref={ref}
-        className="text-4xl font-extrabold tabular-nums"
+        ref={numberRef}
+        className="block font-serif text-5xl font-bold tabular-nums tracking-tight text-slate-800"
       >
         {done ? target.toLocaleString("id-ID") : "0"}
       </span>
-      <span className="mt-1 text-sm font-medium text-blue-100">{label}</span>
+      {suffix && (
+        <sup className="ml-0.5 text-xl font-semibold text-amber-600">
+          {suffix}
+        </sup>
+      )}
+
+      {/* Separator */}
+      <div className="mx-auto mt-3 h-px w-12 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+
+      {/* Label */}
+      <p className="mt-3 text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+        {label}
+      </p>
     </div>
   );
 }
 
-export function StatisticsCounter({ jiwa, kk, tahunPelayanan }: StatisticsCounterProps) {
+/* -------------------------------------------------------------------------- */
+/*  Section                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export function StatisticsCounter({
+  jiwa,
+  kk,
+  tahunPelayanan,
+}: StatisticsCounterProps) {
   const jiwaNum = parseInt(jiwa, 10) || 0;
   const kkNum = parseInt(kk, 10) || 0;
   const tahunNum = parseInt(tahunPelayanan, 10) || 0;
-
   const showTahun = tahunPelayanan !== "" && tahunPelayanan !== "0";
 
   if (jiwaNum === 0 && kkNum === 0 && !showTahun) return null;
 
+  const cols = showTahun ? 3 : 2;
+
   return (
-    <section className="bg-blue-600 py-12">
-      <div className="mx-auto max-w-5xl px-4">
+    <section className="bg-slate-50 py-16">
+      <div className="mx-auto max-w-4xl px-4">
+        {/* Subtle section eyebrow */}
+        <p className="mb-8 text-center text-xs font-medium uppercase tracking-[0.25em] text-slate-400">
+          Sekilas Paroki
+        </p>
+
         <div
-          className={`grid gap-8 ${
-            showTahun ? "grid-cols-3" : "grid-cols-2"
-          } sm:grid-cols-2 md:grid-cols-${showTahun ? "3" : "2"}`}
+          className="grid gap-6"
           style={{
-            gridTemplateColumns: `repeat(${showTahun ? 3 : 2}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           }}
         >
-          {jiwaNum > 0 && <AnimatedNumber target={jiwaNum} label="Jiwa Penduduk" />}
-          {kkNum > 0 && <AnimatedNumber target={kkNum} label="Kepala Keluarga" />}
+          {jiwaNum > 0 && (
+            <StatCard target={jiwaNum} label="Jiwa Penduduk" />
+          )}
+          {kkNum > 0 && (
+            <StatCard target={kkNum} label="Kepala Keluarga" />
+          )}
           {showTahun && (
-            <AnimatedNumber target={tahunNum} label="Tahun Pelayanan" />
+            <StatCard target={tahunNum} label="Tahun Melayani" suffix="th" />
           )}
         </div>
       </div>
