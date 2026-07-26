@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { saveOrganizationChart, saveProfileVideo } from "@/actions/organization.action";
+import { saveOrganizationChart, removeOrganizationChart, saveProfileVideo } from "@/actions/organization.action";
 import { saveParishCenter } from "@/actions/parish-center.action";
 import { createStation, updateStation, deleteStation } from "@/actions/station.action";
 import { Button } from "@/components/ui/button";
@@ -166,7 +166,7 @@ function OrganizationChartTab({
 
   const handleRemove = () => {
     setPreview("");
-    saveOrganizationChart("").then((r) => {
+    removeOrganizationChart().then((r) => {
       if (!r?.success) {
         toast.error(r?.error ?? "Gagal menghapus bagan");
         return;

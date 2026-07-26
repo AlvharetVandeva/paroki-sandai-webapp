@@ -17,6 +17,7 @@ export async function saveParishCenter(data: Record<string, unknown>) {
       await prisma.parishCenter.create({ data: parsed });
     }
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menyimpan pusat paroki" };

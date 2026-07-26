@@ -12,6 +12,7 @@ export async function createStation(data: Record<string, unknown>) {
     const parsed = StationSchema.parse(data);
     await prisma.station.create({ data: parsed });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menambah stasi" };
@@ -26,6 +27,7 @@ export async function updateStation(id: number, data: Record<string, unknown>) {
       data: parsed,
     });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal mengubah stasi" };
@@ -36,6 +38,7 @@ export async function deleteStation(id: number) {
   try {
     await prisma.station.delete({ where: { id } });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menghapus stasi" };
