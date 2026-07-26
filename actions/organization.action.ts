@@ -2,43 +2,30 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
-import {
-  OrganizationMemberSchema,
-  OrganizationMemberUpdateSchema,
-} from "@/schemas/organization.schema";
 
-export async function createMember(data: Record<string, unknown>) {
+export async function saveOrganizationChart(url: string) {
   try {
-    const parsed = OrganizationMemberSchema.parse(data);
-    await prisma.organizationMember.create({ data: parsed });
-    revalidatePath("/dashboard/profil");
-    return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || "Gagal menambah anggota" };
-  }
-}
-
-export async function updateMember(id: number, data: Record<string, unknown>) {
-  try {
-    const parsed = OrganizationMemberUpdateSchema.parse(data);
-    await prisma.organizationMember.update({
-      where: { id },
-      data: parsed,
+    await prisma.siteSetting.upsert({
+      where: { key: "organizationChartImage" },
+      update: { value: url },
+      create: { key: "organizationChartImage", value: url },
     });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || "Gagal mengubah anggota" };
+    return { success: false, error: error.message || "Gagal menyimpan bagan organisasi" };
   }
 }
 
-export async function deleteMember(id: number) {
+export async function removeOrganizationChart() {
   try {
-    await prisma.organizationMember.delete({ where: { id } });
+    await prisma.siteSetting.delete({ where: { key: "organizationChartImage" } });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || "Gagal menghapus anggota" };
+    return { success: false, error: error.message || "Gagal menghapus bagan organisasi" };
   }
 }
 
@@ -50,6 +37,7 @@ export async function saveProfileVideo(url: string) {
       create: { key: "profileVideoUrl", value: url },
     });
     revalidatePath("/dashboard/profil");
+    revalidatePath("/profil");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Gagal menyimpan URL video" };

@@ -1,5 +1,6 @@
 import { getAnnouncementsPage } from "@/services/announcement.service";
 import { AnnouncementsList } from "@/components/public/announcements-list";
+import { PageHeader } from "@/components/public/page-header";
 
 export const metadata = {
   title: "Pengumuman | Paroki Sandai",
@@ -25,10 +26,10 @@ export default async function PengumumanPage({ searchParams }: { searchParams: S
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Pengumuman</h1>
-        <p className="text-slate-600">Informasi dan pengumuman terbaru Paroki Sandai</p>
-      </div>
+      <PageHeader
+        title="Pengumuman"
+        description="Informasi dan pengumuman terbaru Paroki Sandai."
+      />
 
       <AnnouncementsList
         initialItems={data.items.map((a) => ({

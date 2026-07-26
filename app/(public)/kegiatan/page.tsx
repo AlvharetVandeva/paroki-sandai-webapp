@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { getAllEvents } from "@/services/event.service";
 import { Calendar, MapPin } from "lucide-react";
+import { PageHeader } from "@/components/public/page-header";
 
 export const metadata: Metadata = {
   title: "Kegiatan | Paroki Sandai",
@@ -17,12 +18,10 @@ export default async function KegiatanPage() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-12 md:py-16">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-4">
-          Kegiatan Paroki
-        </h1>
-        <div className="w-24 h-1.5 bg-blue-600 mx-auto rounded-full"></div>
-      </div>
+      <PageHeader
+        title="Kegiatan Paroki"
+        description="Daftar kegiatan dan acara Gereja Katolik Paroki Sandai."
+      />
 
       {events.length === 0 && (
         <p className="text-center text-slate-500 italic mt-12">

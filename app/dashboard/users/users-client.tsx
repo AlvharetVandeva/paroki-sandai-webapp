@@ -20,7 +20,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-type Role = { id: number; name: string };
+type Role = { id: number; name: string; description: string | null };
 type UserRole = { role: Role };
 type User = { id: string; name: string; email: string; userRoles: UserRole[] };
 
