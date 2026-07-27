@@ -8,13 +8,20 @@ const globalForPrisma = globalThis as unknown as {
 // Force Next.js Turbopack cache invalidation for History CMS
 
 // Konfigurasi adapter MariaDB dari environment variables (.env.local)
+// Di serverless environment (Vercel), batasi connection per instance
+// agar tidak melebihi total limit database di cPanel.
+const connectionLimit = process.env.DB_CONNECTION_LIMIT
+  ? Number(process.env.DB_CONNECTION_LIMIT)
+  : (process.env.NODE_ENV === "production" ? 1 : 10);
+
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
+  connectionLimit: connectionLimit,
+  connectTimeout: 15000, // Tingkatkan waktu tunggu pembuatan socket (15 detik) menghindari lag cPanel
 });
 
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
