@@ -222,13 +222,13 @@ export function PastorGreetingSection({
   return (
     <section className="bg-blue-950 py-16 text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[280px_1fr] lg:items-center">
-        <div className="h-72 overflow-hidden rounded-3xl bg-blue-900 shadow-xl">
+        <div className="flex h-80 lg:h-96 items-center justify-center overflow-hidden rounded-3xl bg-blue-900 shadow-xl">
           <Image
-            width={560}
-            height={560}
+            width={600}
+            height={800}
             src={photoUrl}
             alt={pastorName}
-            className="h-full w-full object-cover opacity-90"
+            className="h-full w-full object-contain opacity-90"
           />
         </div>
         <blockquote>
